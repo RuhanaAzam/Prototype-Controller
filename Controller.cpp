@@ -2,13 +2,15 @@
 #include "ComUnit.cpp"
 #include <queue>
 #include "opencv2/core/mat.hpp"
-#include "opencv2/core.hpp"
+#include "opencv2/core.hpp"'
+#include <opencv2/opencv.hpp>
 
 class Controller{
 	private:
 		ComUnit * cu; // communication unit
 		int worker; // ???
 		std::queue<int> seg; //video segmets
+		//std::queue<cv::Mat*> segM; //video segmetent 30 frames each
 
 	public:
 		Controller(int worker, std::queue <int> seg); 
@@ -22,6 +24,7 @@ Controller::Controller(int worker, std::queue <int> seg) // constructor
 	this->worker = worker;
 	this->seg = seg;
 	cu = new ComUnit;
+	cv::Mat x(10, 10, CV_8UC1);
 } 
 
 void Controller::send_group(){
@@ -39,15 +42,3 @@ void Controller::print_queue(std::queue<int> seg){
 	}
 }
 
-int main() {
-	printf("Hello World!\n");
-	std::queue <int> seg;
-	seg.push(5);
-	seg.push(6);
-	seg.push(7);
-	Controller * c = new Controller(4,seg);
-	c->print_queue(seg);
-	c->send_group();
-	
-	return 1;
-}
