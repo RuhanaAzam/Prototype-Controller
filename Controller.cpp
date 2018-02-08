@@ -1,8 +1,8 @@
 #include<cstdio>
 #include "ComUnit.cpp"
 #include <queue>
-#include "opencv2/core/mat.hpp"
-#include "opencv2/core.hpp"'
+//#include "opencv2/core/mat.hpp"
+//#include "opencv2/core.hpp"'
 #include <opencv2/opencv.hpp>
 
 class Controller{
@@ -28,10 +28,12 @@ Controller::Controller(int worker, std::queue <int> seg) // constructor
 } 
 
 void Controller::send_group(){
+
 	printf("%s\n", "send_group done");
 }
 
 void Controller::read_video(){}
+
 void Controller::print_queue(std::queue<int> seg){
 	int a;
 	for(int i = 0; i < seg.size(); i++) {
