@@ -4,32 +4,40 @@
 //#include "opencv2/core/mat.hpp"
 //#include "opencv2/core.hpp"'
 #include <opencv2/opencv.hpp>
+#include "cv_serial.cpp"
+
 
 class Controller{
 	private:
 		ComUnit * cu; // communication unit
 		int worker; // ???
-		std::queue<int> seg; //video segmets
-		//std::queue<cv::Mat*> segM; //video segmetent 30 frames each
+		//std::queue<int> seg; //video segmets
+		std::queue<cv::Mat*> seg; //video segmetent 30 frames each
 
 	public:
-		Controller(int worker, std::queue <int> seg); 
+		Controller(int worker, std::queue <cv::Mat*> seg); 
 		void send_group();
 		void read_video();
 		void print_queue(std::queue<int> seg);
 };
 
-Controller::Controller(int worker, std::queue <int> seg) // constructor
+Controller::Controller(int worker, std::queue <cv::Mat*> seg) // constructor
 {
 	this->worker = worker;
 	this->seg = seg;
 	cu = new ComUnit;
-	cv::Mat x(10, 10, CV_8UC1);
 } 
 
 void Controller::send_group(){
+	cv::Mat * frames = seg.front();
+	seg.pop();
 
-	printf("%s\n", "send_group done");
+	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[0]);
+	//for(int i = 0; i < sizeof(frames); i++) {
+	//	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[i]);
+	//}
+
+
 }
 
 void Controller::read_video(){}
