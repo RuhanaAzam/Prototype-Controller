@@ -1,5 +1,3 @@
-
-
 #include "Controller.hpp"
 #include <iostream>
 #include <stdlib.h>

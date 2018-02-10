@@ -4,7 +4,7 @@
 #include <string>
 #include <queue>
 #include <vector>
-
+#include "ComUnit.cpp"
 
 using namespace cv;
 using namespace std;
