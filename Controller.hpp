@@ -1,25 +1,27 @@
-#include <opencv>
+#include <opencv2/opencv.hpp>
 #include <queue>
 #include <iostream>
 #include <stdlib.h>
 #include <string>
 
+using namespace std;
+using namespace cv;
 class Controller{
+
 
 	private:
 		ComUnit * cu; // communication unit
 		int worker; // ???
 		int groupSize; //number of frames 
-		std::queue<int> seg; //video segmets
-		//std::queue<cv::Mat*> segM; //video segmetent 30 frames each
-//		Mat[] groups;
 		queue<Mat[]> *clips;
-
+		
 	public:
-		Controller(int worker, std::queue <int> seg); 
+		Controller(int worker,int groupSize);
 		void send_group();
-		void read_video();
-		void print_queue(std::queue<int> seg);
+		void read_video(string filename);
+		void print_queue(queue<int> seg);
+
 };
+
 
 
