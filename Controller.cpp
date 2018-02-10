@@ -6,29 +6,48 @@
 #include <vector>
 
 
-
 using namespace cv;
 using namespace std;
-Controller::Controller(int worker, int groupSize) // constructor
 
+//#include "opencv2/core/mat.hpp"
+//#include "opencv2/core.hpp"'
+#include <opencv2/opencv.hpp>
+#include "cv_serial.cpp"
+
+
+class Controller{
+	private:
+		ComUnit * cu; // communication unit
+		int worker; // ???
+		std::queue<cv::Mat*> seg; //video segmetent 30 frames each
+
+	public:
+		Controller(int worker, std::queue <cv::Mat*> seg); 
+		void send_group();
+		void read_video();
+		void print_queue(std::queue<int> seg);
+};
+
+Controller::Controller(int worker, std::queue <cv::Mat*> seg) // constructor
 {
-
 	this->worker = worker;
-//	this->seg = seg;
-//	cu = new ComUnit;
-	Mat x(10, 10, CV_8UC1);
 	this->groupSize = groupSize;
-//	this->groups = new Mat[this->groupSize]; 
-
 	this->clips = clips;
-
+	cu = new ComUnit;
 } 
 
-/*
 void Controller::send_group(){
-	printf("%s\n", "send_group done");
+	cv::Mat * frames = seg.front();
+	seg.pop();
+
+	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[0]);
+	//for(int i = 0; i < sizeof(frames); i++) {
+	//	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[i]);
+	//}
+
+
 }
-*/
+
 void Controller::read_video(string filename){
    VideoCapture cap("1.mp4"); // open the default camera
     if(!cap.isOpened())  // check if we succeeded
@@ -64,7 +83,7 @@ void Controller::read_video(string filename){
 
 }
 
-/*
+
 void Controller::print_queue(std::queue<int> seg){
 	int a;
 	for(int i = 0; i < seg.size(); i++) {
@@ -74,5 +93,4 @@ void Controller::print_queue(std::queue<int> seg){
 		seg.push(a);
 	}
 }
-*/
 
