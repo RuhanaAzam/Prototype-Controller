@@ -54,7 +54,9 @@ void Controller::read_video(string filename){
 	  group[i] = frame;
 
 	}
-	clips->push(group[groupNum]);
+
+	clips->push(group);
+
 
 
 	groupNum++;
