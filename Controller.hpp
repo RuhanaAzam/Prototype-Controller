@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include "ComUnit.cpp"
 
 using namespace std;
 using namespace cv;
@@ -16,7 +17,7 @@ class Controller{
 		queue<Mat[]> *clips;
 		
 	public:
-		Controller(int worker,int groupSize);
+		Controller(int worker, queue<Mat[]> *clips, int groupSize);
 		void send_group();
 		void read_video(string filename);
 		void print_queue(queue<int> seg);
