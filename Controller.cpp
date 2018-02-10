@@ -1,37 +1,68 @@
-#include<cstdio>
-#include "ComUnit.cpp"
+#include "Controller.hpp"
+#include <iostream>
+#include <stdlib.h>
+#include <string>
 #include <queue>
-#include "opencv2/core/mat.hpp"
-#include "opencv2/core.hpp"'
-#include <opencv2/opencv.hpp>
+#include <vector>
 
-class Controller{
-	private:
-		ComUnit * cu; // communication unit
-		int worker; // ???
-		std::queue<int> seg; //video segmets
-		//std::queue<cv::Mat*> segM; //video segmetent 30 frames each
 
-	public:
-		Controller(int worker, std::queue <int> seg); 
-		void send_group();
-		void read_video();
-		void print_queue(std::queue<int> seg);
-};
 
-Controller::Controller(int worker, std::queue <int> seg) // constructor
+using namespace cv;
+using namespace std;
+Controller::Controller(int worker, int groupSize) // constructor
+
 {
+
 	this->worker = worker;
-	this->seg = seg;
-	cu = new ComUnit;
-	cv::Mat x(10, 10, CV_8UC1);
+//	this->seg = seg;
+//	cu = new ComUnit;
+	Mat x(10, 10, CV_8UC1);
+	this->groupSize = groupSize;
+//	this->groups = new Mat[this->groupSize]; 
+
+	this->clips = clips;
+
 } 
 
+/*
 void Controller::send_group(){
 	printf("%s\n", "send_group done");
 }
+*/
+void Controller::read_video(string filename){
+   VideoCapture cap("1.mp4"); // open the default camera
+    if(!cap.isOpened())  // check if we succeeded
+        return;
 
-void Controller::read_video(){}
+   
+//    Mat[this->groupSize] group;
+    Mat group[30];
+   
+
+    //namedWindow("edges",1);
+    // double fps = vidcap.get(CAP_PROP_FPS);
+    for(;;)
+    {
+	int groupNum = 0;
+	//for(int i = 0; i < this->groupSize; i++){
+        for(int i = 0; i < 30; i++){
+	  int frameNum = 1;
+	  int frameId = cap.get(frameNum++);
+	  Mat frame;
+          cap >> frame; // get a new frame from camera
+
+	  group[i] = frame;
+
+	}
+	clips->push(group[groupNum]);
+
+
+	groupNum++;
+      }
+
+}
+
+/*
 void Controller::print_queue(std::queue<int> seg){
 	int a;
 	for(int i = 0; i < seg.size(); i++) {
@@ -41,4 +72,5 @@ void Controller::print_queue(std::queue<int> seg){
 		seg.push(a);
 	}
 }
+*/
 
