@@ -11,7 +11,6 @@ class Controller{
 	private:
 		ComUnit * cu; // communication unit
 		int worker; // ???
-		//std::queue<int> seg; //video segmets
 		std::queue<cv::Mat*> seg; //video segmetent 30 frames each
 
 	public:
@@ -32,11 +31,22 @@ void Controller::send_group(){
 	cv::Mat * frames = seg.front();
 	seg.pop();
 
-	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[0]);
+	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpeg", frames[0]);
+	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram2.jpeg", frames[1]);
 	//for(int i = 0; i < sizeof(frames); i++) {
 	//	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[i]);
 	//}
+	
+	//const char * writeAddress = "/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpg";
+	//cv::Mat x = matread("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpg");
 
+	// uploading jpeg as MAT
+	// *** READ AND WRITE COLOR NOT DONE!!
+	
+// FOR JPEG CONVERSION
+ 	/*std::vector<int> params;
+    params.push_back(cv::IMWRITE_JPEG_QUALITY );
+	cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", x, params); */
 
 }
 
