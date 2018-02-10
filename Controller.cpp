@@ -15,7 +15,7 @@ using namespace std;
 #include "cv_serial.cpp"
 
 
-class Controller{
+/*class Controller{
 	private:
 		ComUnit * cu; // communication unit
 		int worker; // ???
@@ -26,9 +26,9 @@ class Controller{
 		void send_group();
 		void read_video();
 		void print_queue(std::queue<int> seg);
-};
+}; */
 
-Controller::Controller(int worker, std::queue <cv::Mat*> seg) // constructor
+Controller::Controller(int worker, queue<Mat[]> *clips, int groupSize) // constructor
 {
 	this->worker = worker;
 	this->groupSize = groupSize;
@@ -37,11 +37,11 @@ Controller::Controller(int worker, std::queue <cv::Mat*> seg) // constructor
 } 
 
 void Controller::send_group(){
-	cv::Mat * frames = seg.front();
-	seg.pop();
+	//cv::Mat * frames = seg.front();
+	//seg.pop();
 
-	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpeg", frames[0]);
-	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram2.jpeg", frames[1]);
+	//matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpeg", frames[0]);
+	//matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram2.jpeg", frames[1]);
 	//for(int i = 0; i < sizeof(frames); i++) {
 	//	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[i]);
 	//}
@@ -60,7 +60,7 @@ void Controller::send_group(){
 }
 
 void Controller::read_video(string filename){
-   VideoCapture cap("1.mp4"); // open the default camera
+   VideoCapture cap(filename); // open the default camera
     if(!cap.isOpened())  // check if we succeeded
         return;
 
@@ -85,7 +85,7 @@ void Controller::read_video(string filename){
 
 	}
 
-	clips->push(group);
+	//clips->push(group);
 
 
 
@@ -100,7 +100,7 @@ void Controller::print_queue(std::queue<int> seg){
 	for(int i = 0; i < seg.size(); i++) {
 		a = seg.front();
 		seg.pop();
-		printf("%d\n", a);
+		cout << a << "\n";
 		seg.push(a);
 	}
 }
