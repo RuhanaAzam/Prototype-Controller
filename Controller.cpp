@@ -15,18 +15,6 @@ using namespace std;
 #include "cv_serial.cpp"
 
 
-/*class Controller{
-	private:
-		ComUnit * cu; // communication unit
-		int worker; // ???
-		std::queue<cv::Mat*> seg; //video segmetent 30 frames each
-
-	public:
-		Controller(int worker, std::queue <cv::Mat*> seg); 
-		void send_group();
-		void read_video();
-		void print_queue(std::queue<int> seg);
-}; */
 
 Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constructor
 {
@@ -37,10 +25,11 @@ Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constru
 } 
 
 void Controller::send_group(){
-	//cv::Mat frames [] = (*clips)->front();
-	//seg.pop();
 
-	//matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpeg", frames[0]);
+	cv::Mat * frames = clips->front();
+	clips->pop();
+
+	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpeg", frames[0]);
 	//matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram2.jpeg", frames[1]);
 	//for(int i = 0; i < sizeof(frames); i++) {
 	//	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[i]);
