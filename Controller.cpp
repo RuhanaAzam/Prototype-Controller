@@ -9,7 +9,9 @@
 using namespace cv;
 using namespace std;
  
-#include <opencv2/opencv.hpp>
+//#include "opencv2/core/mat.hpp"
+//#include "opencv2/core.hpp"'
+#include "opencv2/opencv.hpp"
 #include "cv_serial.cpp"
 
 
@@ -26,7 +28,7 @@ using namespace std;
 		void print_queue(std::queue<int> seg);
 }; */
 
-Controller::Controller(int worker, queue<Mat[]> *clips, int groupSize) // constructor
+Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constructor
 {
 	this->worker = worker;
 	this->groupSize = groupSize;
@@ -58,11 +60,10 @@ void Controller::send_group(){
 }
 
 void Controller::read_video(string filename){
-   VideoCapture cap(filename); // open the default camera
+    VideoCapture cap(filename); // open the default camera
     if(!cap.isOpened())  // check if we succeeded
         return;
 
-   
 //    Mat[this->groupSize] group;
     Mat group[30];
    
@@ -82,10 +83,7 @@ void Controller::read_video(string filename){
 	  group[i] = frame;
 
 	}
-
-	//clips->push(group);
-
-
+	clips->push(group);
 
 	groupNum++;
       }
