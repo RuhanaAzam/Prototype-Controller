@@ -8,9 +8,7 @@
 
 using namespace cv;
 using namespace std;
-
-//#include "opencv2/core/mat.hpp"
-//#include "opencv2/core.hpp"'
+ 
 #include <opencv2/opencv.hpp>
 #include "cv_serial.cpp"
 
@@ -37,7 +35,7 @@ Controller::Controller(int worker, queue<Mat[]> *clips, int groupSize) // constr
 } 
 
 void Controller::send_group(){
-	//cv::Mat * frames = seg.front();
+	//cv::Mat frames [] = (*clips)->front();
 	//seg.pop();
 
 	//matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpeg", frames[0]);

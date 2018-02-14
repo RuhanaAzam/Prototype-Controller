@@ -14,7 +14,7 @@ class Controller{
 		ComUnit * cu; // communication unit
 		int worker; // ???
 		int groupSize; //number of frames 
-		queue<Mat[]> *clips;
+		queue<Mat[]> * clips;
 		
 	public:
 		Controller(int worker, queue<Mat[]> *clips, int groupSize);
@@ -23,6 +23,8 @@ class Controller{
 		void print_queue(queue<int> seg);
 
 };
+
+//clip {  #  } --------> #[ Mat * | MAT * ..........]
 
 
 
