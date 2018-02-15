@@ -13,7 +13,7 @@ class Controller{
 
 	private:
 		ComUnit * cu; // communication unit
-		int worker; // ???
+		int worker; // number of workers
 		int groupSize; //number of frames 
 		queue<Mat*> *clips;
 
@@ -24,8 +24,8 @@ class Controller{
 		void read_video(string filename);
 		void print_queue(queue<Mat*> *clips);
 
-
 };
+
 
 
 
