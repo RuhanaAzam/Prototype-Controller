@@ -58,19 +58,25 @@ void Controller::send_group(){
 	cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", x, params); */
 
 }
-
 void Controller::read_video(string filename){
-    VideoCapture cap(filename); // open the default camera
-    if(!cap.isOpened())  // check if we succeeded
-        return;
 
+  cout << filename << endl;
+
+//    VideoCapture cap(filename); // open the default camera
+
+    VideoCapture cap(0);
+    if(!cap.isOpened()){  // check if we succeeded
+         cout << "It's not opening the file" << endl;
+	 return;
+    }
 //    Mat[this->groupSize] group;
-    Mat group[30];
+    Mat group[this->groupSize];
    
+   
+   cout << "Before for loop" << endl;
+   #program omp parallel for
+   for(;;)
 
-    //namedWindow("edges",1);
-    // double fps = vidcap.get(CAP_PROP_FPS);
-    for(;;)
     {
 	int groupNum = 0;
 	//for(int i = 0; i < this->groupSize; i++){
@@ -86,18 +92,24 @@ void Controller::read_video(string filename){
 	clips->push(group);
 
 	groupNum++;
+	if(waitKey(5000) > 0)
+		break;
       }
 
 }
 
 
-void Controller::print_queue(std::queue<int> seg){
-	int a;
-	for(int i = 0; i < seg.size(); i++) {
-		a = seg.front();
-		seg.pop();
-		cout << a << "\n";
-		seg.push(a);
+void Controller::print_queue(queue<Mat*> *clips){
+	cout << "Check queue by printing queue" << endl;
+	Mat *a;
+
+	int num = 0;
+	for(int i = 0; i < clips->size(); i++) {
+		a = clips->front();
+		clips->pop();
+		cout << a << endl;
+		//num++;
+		//cout << num << endl;
 	}
 }
 
