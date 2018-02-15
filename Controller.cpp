@@ -1,4 +1,5 @@
 #include "Controller.hpp"
+#include "matSerial.cpp"
 #include <iostream>
 #include <stdlib.h>
 #include <string>
@@ -25,26 +26,19 @@ Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constru
 } 
 
 void Controller::send_group(){
+	while(!clips->empty()) { // empties the queue
+		cv::Mat * frames = clips->front();
+		clips->pop();
+		
+		vector<unsigned char> buf = matWrite(frames[0]);
+		cu->sent(buf); // send to comUnit
 
-	cv::Mat * frames = clips->front();
-	clips->pop();
-
-	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpeg", frames[0]);
-	//matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram2.jpeg", frames[1]);
-	//for(int i = 0; i < sizeof(frames); i++) {
-	//	matwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", frames[i]);
-	//}
+		cv::Mat a = matRead(buf);
+		std::vector<int> params;
+	    params.push_back(cv::IMWRITE_JPEG_QUALITY);
+	    cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpeg", a, params);
+	}
 	
-	//const char * writeAddress = "/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpg";
-	//cv::Mat x = matread("/Users/ruhana/CAM2/Prototype-Controller/writeFram.jpg");
-
-	// uploading jpeg as MAT
-	// *** READ AND WRITE COLOR NOT DONE!!
-	
-// FOR JPEG CONVERSION
- 	/*std::vector<int> params;
-    params.push_back(cv::IMWRITE_JPEG_QUALITY );
-	cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/writeFram", x, params); */
 
 }
 
