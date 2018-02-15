@@ -1,4 +1,4 @@
 class ComUnit{
 public:
-	int sent(char * msg){return 1;}
+	int sent(std::vector<unsigned char> buf){return 1;}
 };
