@@ -57,7 +57,6 @@ void Controller::read_video(string filename){
    
    
    cout << "Before for loop" << endl;
-   #program omp parallel for
    for(;;)
 
     {
