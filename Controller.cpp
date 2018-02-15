@@ -27,19 +27,21 @@ Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constru
 
 void Controller::send_group(){
 	while(!clips->empty()) { // empties the queue
-		cv::Mat * frames = clips->front();
-		clips->pop();
-		
-		vector<unsigned char> buf = matWrite(frames[0]);
-		cu->sent(buf); // send to comUnit
+			cv::Mat * frames = clips->front();
+			clips->pop();
+			
+		for(int i = 0; i < groupSize; i++) {
 
-		cv::Mat a = matRead(buf);
-		std::vector<int> params;
-	    params.push_back(cv::IMWRITE_JPEG_QUALITY);
-	    cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpeg", a, params);
+			vector<unsigned char> buf = matWrite(frames[0]);
+			cu->sent(buf); // send to comUnit
+
+			// ADDED FOR VERIFICATION
+			cv::Mat a = matRead(buf);
+			std::vector<int> params;
+		    params.push_back(cv::IMWRITE_JPEG_QUALITY);
+		    cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpeg", a, params);
+			}	
 	}
-	
-
 }
 void Controller::read_video(string filename){
 
