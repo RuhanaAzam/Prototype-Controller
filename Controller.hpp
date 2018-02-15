@@ -22,7 +22,8 @@ class Controller{
 		Controller(int worker, queue<Mat*> *clips, int groupSize);
 		void send_group();
 		void read_video(string filename);
-		void print_queue(queue<int> seg);
+		void print_queue(queue<Mat*> *clips);
+
 };
 
 
