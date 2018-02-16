@@ -23,6 +23,7 @@ class Controller{
 		void send_group();
 		void read_video(string filename);
 		void print_queue(queue<Mat*> *clips);
+		void receive(queue<string> msgs);
 
 };
 

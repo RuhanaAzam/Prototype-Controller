@@ -94,6 +94,25 @@ void Controller::print_queue(queue<Mat*> *clips){
 		cout << a << endl;
 		//num++;
 		//cout << num << endl;
+
 	}
 }
+void Controller::receive(queue<string> msgs){
 
+	if(msgs.size() == 0){
+
+		cout << "There is no such message yet";
+		return;
+	}
+
+	cout << "START RECEIVING MESSAGES" << endl;
+
+	while(msgs.size()!=0){
+
+		cout << msgs.front() << endl;
+		msgs.pop();
+
+	}
+
+
+}
