@@ -5,7 +5,7 @@
 #include <string>
 #include <queue>
 #include <vector>
-
+#include <pthread.h>
 
 using namespace cv;
 using namespace std;
@@ -26,23 +26,32 @@ Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constru
 } 
 
 void Controller::send_group(){
-	while(!clips->empty()) { // empties the queue
-			cv::Mat * frames = clips->front();
-			clips->pop();
-			
-		for(int i = 0; i < (groupSize); i++) {
+	while(1) { 
+			pthread_mutex_lock(&lock); // LOCK START ************************
+			if(clips->empty()) { // exits function when empty
+				pthread_mutex_unlock(&lock);
+				return;
+			} else {
+				printf("#%lu REMOVED\n", clips->size());
+				cv::Mat * frames = clips->front();
+				clips->pop();
+				pthread_mutex_unlock(&lock); // LOCK END ************************
+				
+				for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
+					vector<unsigned char> buf = matWrite(frames[i]);
+					cu->sent(buf); // send to comUnit
 
-			vector<unsigned char> buf = matWrite(frames[0]);
-			cu->sent(buf); // send to comUnit
-
-			// ADDED FOR VERIFICATION
-			cv::Mat a = matRead(buf);
-			std::vector<int> params;
-		    params.push_back(cv::IMWRITE_JPEG_QUALITY);
-		    cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpeg", a, params);
-			}	
+					// ADDED FOR VERIFICATION // REMOVE LATER
+					cv::Mat a = matRead(buf);
+					std::vector<int> params;
+				    params.push_back(cv::IMWRITE_JPEG_QUALITY);
+				    cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpg", a, params);
+				} 
+			}		
 	}
 }
+
+
 void Controller::read_video(string filename){
 
   cout << filename << endl;
@@ -80,6 +89,7 @@ void Controller::read_video(string filename){
 		break;
       }
 
+    thread0Finish = 1; // added to notify when read_video thread ends
 }
 
 
@@ -111,8 +121,53 @@ void Controller::receive(queue<string> msgs){
 
 		cout << msgs.front() << endl;
 		msgs.pop();
-
 	}
-
-
 }
+
+void Controller::start(){
+		thread0Finish = 0;
+		pthread_t sendThread;
+		pthread_t readThread;
+		
+		int a = pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
+		int b = pthread_create(&readThread, NULL, Controller::read_video_thread_callback, this);
+		if (a == 0 || b == 0) {printf("Issue Creating Thread\n"); exit(1);}
+
+		while(!thread0Finish) {
+			pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
+		} 
+		//pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
+		pthread_join(readThread, NULL); 
+		pthread_join(sendThread, NULL);
+		//pthread_exit(NULL);
+}
+
+void * Controller::send_group_thread_callback(void *controllerPtr) {
+	Controller * controller = (Controller*) controllerPtr;
+	controller->send_group();
+	return controllerPtr;
+}
+
+void * Controller::read_video_thread_callback(void * controllerPtr) {
+	Controller * controller = (Controller*) controllerPtr;
+	//controller->read_video("file_name"); //uncomment this later!
+	controller->push_test(); // place holder for now
+	return controllerPtr;
+}
+
+void Controller::push_test() {
+	for(int i = 0; i < 10; i++) {
+		cv::Mat pic = cv::imread("/Users/ruhana/CAM2/Prototype-Controller/Version 2.jpg", CV_LOAD_IMAGE_COLOR);
+		Mat * frames;
+		frames = &pic; // pointer to single picture
+
+
+		pthread_mutex_lock(&lock); // LOCK START ************************
+		clips->push(frames); // add array to queue
+		printf("#%lu ADDED\n", clips->size());
+		pthread_mutex_unlock(&lock); // LOCK START ************************ 
+	} 
+	thread0Finish = 1;
+}
+
+
