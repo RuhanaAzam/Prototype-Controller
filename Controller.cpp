@@ -33,7 +33,7 @@ void Controller::send_group(){
 			cv::Mat * frames = clips->front();
 			clips->pop();
 			
-		for(int i = 0; i < groupSize; i++) {
+		for(int i = 0; i < (groupSize); i++) {
 
 			vector<unsigned char> buf = matWrite(frames[0]);
 			cu->sent(buf); // send to comUnit
@@ -64,7 +64,6 @@ void Controller::read_video(string filename){
 	int groupNum = 0;
 	//for(int i = 0; i < this->groupSize; i++){
         for(int i = 0; i < 30; i++){
-
 	  int frameNum = 1;
 	  int frameId = cap.get(frameNum++);
 	  Mat *frame = new Mat();
