@@ -10,6 +10,8 @@
 using namespace cv;
 using namespace std;
  
+pthread_mutex_t frameLocker;
+pthread_t UpdThread;
 //#include "opencv2/core/mat.hpp"
 //#include "opencv2/core.hpp"'
 #include "opencv2/opencv.hpp"
@@ -24,6 +26,7 @@ Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constru
 	this->clips = clips;
 	cu = new ComUnit;
 } 
+
 
 void Controller::send_group(){
 	while(1) { 
@@ -56,33 +59,32 @@ void Controller::read_video(string filename){
 
   cout << filename << endl;
 
-//    VideoCapture cap(filename); // open the default camera
+    VideoCapture cap(filename); // open the default camera
 
-    VideoCapture cap(0);
+//    VideoCapture cap(0);
     if(!cap.isOpened()){  // check if we succeeded
          cout << "It's not opening the file" << endl;
 	 return;
     }
-//    Mat[this->groupSize] group;
-    Mat group[this->groupSize];
-   
-   
-   cout << "Before for loop" << endl;
+    Mat *group[this->groupSize];
    for(;;)
 
     {
 	int groupNum = 0;
 	//for(int i = 0; i < this->groupSize; i++){
-   for(int i = 0; i < 30; i++){
+        for(int i = 0; i < 30; i++){
 	  int frameNum = 1;
 	  int frameId = cap.get(frameNum++);
-	  Mat frame;
-          cap >> frame; // get a new frame from camera
-
+	  Mat *frame = new Mat();
+          cap >> *frame; // get a new frame from camera
+	  imshow("video", *frame);
 	  group[i] = frame;
-
 	}
-	clips->push(group);
+
+	pthread_mutex_lock(&frameLocker);
+	//clips->push(*group);
+	pthread_mutex_unlock(&frameLocker);
+
 
 	groupNum++;
 	if(waitKey(5000) > 0)
@@ -90,6 +92,7 @@ void Controller::read_video(string filename){
       }
 
     thread0Finish = 1; // added to notify when read_video thread ends
+ 
 }
 
 
@@ -102,9 +105,6 @@ void Controller::print_queue(queue<Mat*> *clips){
 		a = clips->front();
 		clips->pop();
 		cout << a << endl;
-		//num++;
-		//cout << num << endl;
-
 	}
 }
 void Controller::receive(queue<string> msgs){
