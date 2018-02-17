@@ -10,8 +10,6 @@
 using namespace cv;
 using namespace std;
  
-pthread_mutex_t frameLocker;
-pthread_t UpdThread;
 //#include "opencv2/core/mat.hpp"
 //#include "opencv2/core.hpp"'
 #include "opencv2/opencv.hpp"
@@ -81,9 +79,9 @@ void Controller::read_video(string filename){
 	  group[i] = frame;
 	}
 
-	pthread_mutex_lock(&frameLocker);
+	pthread_mutex_lock(&lock);
 	//clips->push(*group);
-	pthread_mutex_unlock(&frameLocker);
+	pthread_mutex_unlock(&lock);
 
 
 	groupNum++;
