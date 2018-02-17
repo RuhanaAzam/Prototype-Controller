@@ -34,7 +34,7 @@ void Controller::send_group(){
 				return;
 			} else {
 				printf("#%lu REMOVED\n", clips->size());
-				cv::Mat * frames = clips->front();
+				Mat * frames = clips->front();
 				clips->pop();
 				pthread_mutex_unlock(&lock); // LOCK END ************************
 				
@@ -134,7 +134,7 @@ void Controller::start(){
 		while(!thread0Finish) {
 			pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		} 
-		//pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
+		pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		pthread_join(readThread, NULL); 
 		pthread_join(sendThread, NULL);
 		//pthread_exit(NULL);
