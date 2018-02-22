@@ -17,6 +17,7 @@ using namespace std;
 
 
 
+
 Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize) // constructor
 {
 	this->worker = worker;
@@ -27,57 +28,41 @@ Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize) //
 
 
 void Controller::send_group(){
-	vector<Mat> frames;
-	frames = clips->front();
-	clips->pop();
-			
-				
-	/*for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
-		vector<unsigned char> buf = matWrite(frames[i]);
-		cu->sent(buf); // send to comUnit
-
-		// ADDED FOR VERIFICATION // REMOVE LATER
-		cv::Mat a = matRead(buf);
-		std::vector<int> params;
-		params.push_back(cv::IMWRITE_JPEG_QUALITY);
-		cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpg", a, params);
-		printf("#%lu REMOVED\n", clips->size());
-	}  */
-
-
-
-
-
-/*
 	while(1) { 
-			pthread_mutex_lock(&lock); // LOCK START ************************
-			if(clips->empty()) { // exits function when empty
-				pthread_mutex_unlock(&lock);
-				return;
+		lock.lock();
+		//pthread_mutex_lock(&lock); // LOCK START ************************
+		if(clips->empty()) { // exits function when empty
+			//cout << "Queue Empty" << endl;
+			lock.unlock();
+			//pthread_mutex_unlock(&lock); // LOCK END**********************
+			break;
 
 
-			} else {
-				printf("#%lu REMOVED\n", clips->size());
-				Mat frames;
-				frames = clips->front();
-				clips->pop();
-				pthread_mutex_unlock(&lock); // LOCK END ************************
-				
-				for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
-					vector<unsigned char> buf = matWrite(frames[i]);
-					cu->sent(buf); // send to comUnit
+		} else {
 
-					// ADDED FOR VERIFICATION // REMOVE LATER
-					cv::Mat a = matRead(buf);
-					std::vector<int> params;
-				    params.push_back(cv::IMWRITE_JPEG_QUALITY);
-				    cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpg", a, params);
-				    printf("#%lu REMOVED\n", clips->size());
-				} 
-			}		
+			vector<Mat> frames;
+			//printf("%d\t", clips->empty());
+			frames = clips->front();
+			clips->pop();
+			printf("#%lu REMOVED\n", clips->size());
+			//pthread_mutex_unlock(&lock); // LOCK END**********************
+			lock.unlock();
+			
+
+			for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
+				vector<unsigned char> buf = matWrite(frames[i]);
+				cu->sent(buf); // send to comUnit
+
+				// ADDED FOR VERIFICATION // REMOVE LATER
+				cv::Mat a = matRead(buf);
+				std::vector<int> params;
+				params.push_back(cv::IMWRITE_JPEG_QUALITY);
+				cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpg", a, params);
+			}
+			
+		}		
 	}
-
-*/}
+}
 
 
 void Controller::read_video(string filename){
@@ -109,16 +94,24 @@ void Controller::read_video(string filename){
 	  group.push_back(frame);
         }
 
-//	pthread_mutex_lock(&lock);
+	//pthread_mutex_lock(&lock);
+    lock.lock();
+    /*if(clips->size() > 10 ) {
+    	thread0Finish = 1; // added to notify when read_video thread ends
+    	lock.unlock();
+    	return;
+    } */
 	clips->push(group);
 
-//	pthread_mutex_unlock(&lock);
+	//pthread_mutex_unlock(&lock);
+	lock.unlock();
 	cout << "OUTSIDE?" << endl;
 	groupNum++;
 
 	if(waitKey(30) >= 0)
 		break;
 	}
+	thread0Finish = 1; // added to notify when read_video thread ends
 }
 //    thread0Finish = 1; // added to notify when read_video thread ends
 
@@ -169,7 +162,7 @@ void Controller::start(){
 		pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		pthread_join(readThread, NULL); 
 		pthread_join(sendThread, NULL);
-		pthread_exit(NULL);
+		//pthread_exit(NULL);
 }
 
 void * Controller::send_group_thread_callback(void *controllerPtr) {
@@ -180,28 +173,28 @@ void * Controller::send_group_thread_callback(void *controllerPtr) {
 
 void * Controller::read_video_thread_callback(void * controllerPtr) {
 	Controller * controller = (Controller*) controllerPtr;
-	//controller->read_video("file_name"); //uncomment this later!
+	//controller->read_video("video.MOV"); //uncomment this later!
 	controller->push_test(); // place holder for now
 	return controllerPtr;
 }
 
 void Controller::push_test() {
-	/*
 	cv::Mat pic = cv::imread("/Users/ruhana/CAM2/Prototype-Controller/Version 2.jpg", CV_LOAD_IMAGE_COLOR);
 	for(int i = 0; i < 10; i++) {
-		Mat frames [30];
-		for(int i = 0 ; i < 10; i++) {
-			frames[i] = pic.clone();
+		std::vector<cv::Mat> frames;
+		//pthread_mutex_lock(&lock);
+		lock.lock();
+		for(int i = 0 ; i < groupSize; i++) {
+			frames.push_back(pic.clone());
 		}
-		pthread_mutex_lock(&lock); // LOCK START ************************
+		//pthread_mutex_lock(&lock); // LOCK START ************************
 		clips->push(frames); // add array to queue
+		//pthread_mutex_unlock(&lock); // LOCK END*************************
+		lock.unlock();
+
 		printf("#%lu ADDED\n", clips->size());
-		pthread_mutex_unlock(&lock); // LOCK START ************************  
-
-
-	}   */
+	} 
 	thread0Finish = 1;
-
 }
 
 
