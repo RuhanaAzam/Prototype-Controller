@@ -17,17 +17,16 @@ using namespace std;
 
 
 
-Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constructor
+Controller::Controller(int worker, vector<vector<Mat>> *clips, int groupSize) // constructor
 {
 	this->worker = worker;
 	this->groupSize = groupSize;
 	this->clips = clips;
 	cu = new ComUnit;
-	string s;
 } 
 
 
-void Controller::send_group(){
+void Controller::send_group(){/*
 	while(1) { 
 			pthread_mutex_lock(&lock); // LOCK START ************************
 			if(clips->empty()) { // exits function when empty
@@ -36,7 +35,9 @@ void Controller::send_group(){
 
 
 			} else {
-				Mat * frames = clips->front();
+				printf("#%lu REMOVED\n", clips->size());
+				Mat frames;
+				frames = clips->front();
 				clips->pop();
 				pthread_mutex_unlock(&lock); // LOCK END ************************
 				
@@ -53,21 +54,23 @@ void Controller::send_group(){
 				} 
 			}		
 	}
-}
+
+*/}
 
 
 void Controller::read_video(string filename){
 
-  cout << filename << endl;
-
     VideoCapture cap(filename); // open the default camera
 
-//    VideoCapture cap(0);
     if(!cap.isOpened()){  // check if we succeeded
          cout << "It's not opening the file" << endl;
 	 return;
     }
-    Mat *group[this->groupSize];
+
+   vector<Mat> group;
+
+   Mat frame;
+   namedWindow("w",1);
    for(;;)
 
     {
@@ -76,37 +79,43 @@ void Controller::read_video(string filename){
         for(int i = 0; i < 30; i++){
 	  int frameNum = 1;
 	  int frameId = cap.get(frameNum++);
-	  Mat *frame = new Mat();
-          cap >> *frame; // get a new frame from camera
-	  imshow("video", *frame);
-	  group[i] = frame;
-	}
+	  //frame = new Mat();
+          cap >> frame; // get a new frame from camera
+	 // imshow("video", *frame);
+	 //cout << frameNum << endl;
+	  //group[i] = frame;
+	  group.push_back(frame);
+        }
 
-	pthread_mutex_lock(&lock);
-	//clips->push(*group);
-	pthread_mutex_unlock(&lock);
+//	pthread_mutex_lock(&lock);
+	clips->push_back(group);
 
-
+//	pthread_mutex_unlock(&lock);
+	cout << "OUTSIDE?" << endl;
 	groupNum++;
-	if(waitKey(5000) > 0)
+
+	if(waitKey(30) >= 0)
 		break;
+
+
+	}
       }
-
-    thread0Finish = 1; // added to notify when read_video thread ends
- 
-}
+//    thread0Finish = 1; // added to notify when read_video thread ends
 
 
-void Controller::print_queue(queue<Mat*> *clips){
-	cout << "Check queue by printing queue" << endl;
-	Mat *a;
+
+
+void Controller::print_queue(vector<vector<Mat>> *clips){
+/*	cout << "Check queue by printing queue" << endl;
+	vector<Mat> a;
 
 	int num = 0;
 	for(int i = 0; i < clips->size(); i++) {
 		a = clips->front();
 		clips->pop();
-		cout << a << endl;
+		cout << i << endl;
 	}
+*/
 }
 void Controller::receive(queue<string> msgs){
 
@@ -163,7 +172,6 @@ void Controller::push_test() {
 		for(int i = 0 ; i < 10; i++) {
 			frames[i] = pic.clone();
 		}
-
 		pthread_mutex_lock(&lock); // LOCK START ************************
 		clips->push(frames); // add array to queue
 		printf("#%lu ADDED\n", clips->size());
@@ -172,6 +180,7 @@ void Controller::push_test() {
 
 	} 
 	thread0Finish = 1;
+
 }
 
 
