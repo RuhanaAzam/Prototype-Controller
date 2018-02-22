@@ -15,16 +15,16 @@ class Controller{
 		ComUnit * cu; // communication unit
 		int worker; // number of workers
 		int groupSize; //number of frames 
-		vector<vector<Mat>> *clips;
+		queue<vector<Mat> > *clips;
 		pthread_mutex_t lock;
 		
 		
 	public:
-		Controller(int worker, vector<vector<Mat>> *clips, int groupSize);
+		Controller(int worker, queue<vector<Mat> > *clips, int groupSize);
 		void send_group();
 		void read_video(string filename);
 		void push_test();
-		void print_queue(vector<vector<Mat>> *clips);
+		void print_queue(queue<vector<Mat> > *clips);
 		void receive(queue<string> msgs);
 		void start();
 

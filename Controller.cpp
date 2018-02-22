@@ -17,7 +17,7 @@ using namespace std;
 
 
 
-Controller::Controller(int worker, vector<vector<Mat>> *clips, int groupSize) // constructor
+Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize) // constructor
 {
 	this->worker = worker;
 	this->groupSize = groupSize;
@@ -26,7 +26,29 @@ Controller::Controller(int worker, vector<vector<Mat>> *clips, int groupSize) //
 } 
 
 
-void Controller::send_group(){/*
+void Controller::send_group(){
+	vector<Mat> frames;
+	frames = clips->front();
+	clips->pop();
+			
+				
+	/*for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
+		vector<unsigned char> buf = matWrite(frames[i]);
+		cu->sent(buf); // send to comUnit
+
+		// ADDED FOR VERIFICATION // REMOVE LATER
+		cv::Mat a = matRead(buf);
+		std::vector<int> params;
+		params.push_back(cv::IMWRITE_JPEG_QUALITY);
+		cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpg", a, params);
+		printf("#%lu REMOVED\n", clips->size());
+	}  */
+
+
+
+
+
+/*
 	while(1) { 
 			pthread_mutex_lock(&lock); // LOCK START ************************
 			if(clips->empty()) { // exits function when empty
@@ -88,7 +110,7 @@ void Controller::read_video(string filename){
         }
 
 //	pthread_mutex_lock(&lock);
-	clips->push_back(group);
+	clips->push(group);
 
 //	pthread_mutex_unlock(&lock);
 	cout << "OUTSIDE?" << endl;
@@ -96,16 +118,14 @@ void Controller::read_video(string filename){
 
 	if(waitKey(30) >= 0)
 		break;
-
-
 	}
-      }
+}
 //    thread0Finish = 1; // added to notify when read_video thread ends
 
 
 
 
-void Controller::print_queue(vector<vector<Mat>> *clips){
+void Controller::print_queue(queue<vector<Mat> > *clips){
 /*	cout << "Check queue by printing queue" << endl;
 	vector<Mat> a;
 
@@ -166,6 +186,7 @@ void * Controller::read_video_thread_callback(void * controllerPtr) {
 }
 
 void Controller::push_test() {
+	/*
 	cv::Mat pic = cv::imread("/Users/ruhana/CAM2/Prototype-Controller/Version 2.jpg", CV_LOAD_IMAGE_COLOR);
 	for(int i = 0; i < 10; i++) {
 		Mat frames [30];
@@ -175,10 +196,10 @@ void Controller::push_test() {
 		pthread_mutex_lock(&lock); // LOCK START ************************
 		clips->push(frames); // add array to queue
 		printf("#%lu ADDED\n", clips->size());
-		pthread_mutex_unlock(&lock); // LOCK START ************************  */
+		pthread_mutex_unlock(&lock); // LOCK START ************************  
 
 
-	} 
+	}   */
 	thread0Finish = 1;
 
 }
