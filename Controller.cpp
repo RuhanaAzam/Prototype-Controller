@@ -23,6 +23,7 @@ Controller::Controller(int worker, queue<Mat*> *clips, int groupSize) // constru
 	this->groupSize = groupSize;
 	this->clips = clips;
 	cu = new ComUnit;
+	string s;
 } 
 
 
