@@ -32,8 +32,9 @@ void Controller::send_group(){
 			if(clips->empty()) { // exits function when empty
 				pthread_mutex_unlock(&lock);
 				return;
+
+
 			} else {
-				printf("#%lu REMOVED\n", clips->size());
 				Mat * frames = clips->front();
 				clips->pop();
 				pthread_mutex_unlock(&lock); // LOCK END ************************
@@ -47,6 +48,7 @@ void Controller::send_group(){
 					std::vector<int> params;
 				    params.push_back(cv::IMWRITE_JPEG_QUALITY);
 				    cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpg", a, params);
+				    printf("#%lu REMOVED\n", clips->size());
 				} 
 			}		
 	}
@@ -129,7 +131,7 @@ void Controller::start(){
 		
 		int a = pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		int b = pthread_create(&readThread, NULL, Controller::read_video_thread_callback, this);
-		if (a == 0 || b == 0) {printf("Issue Creating Thread\n"); exit(1);}
+		if (a == -1 || b == -1) {printf("Issue Creating Thread %d %d\n",a,b); exit(1);}
 
 		while(!thread0Finish) {
 			pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
@@ -137,7 +139,7 @@ void Controller::start(){
 		pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		pthread_join(readThread, NULL); 
 		pthread_join(sendThread, NULL);
-		//pthread_exit(NULL);
+		pthread_exit(NULL);
 }
 
 void * Controller::send_group_thread_callback(void *controllerPtr) {
@@ -154,16 +156,19 @@ void * Controller::read_video_thread_callback(void * controllerPtr) {
 }
 
 void Controller::push_test() {
+	cv::Mat pic = cv::imread("/Users/ruhana/CAM2/Prototype-Controller/Version 2.jpg", CV_LOAD_IMAGE_COLOR);
 	for(int i = 0; i < 10; i++) {
-		cv::Mat pic = cv::imread("/Users/ruhana/CAM2/Prototype-Controller/Version 2.jpg", CV_LOAD_IMAGE_COLOR);
-		Mat * frames;
-		frames = &pic; // pointer to single picture
-
+		Mat frames [30];
+		for(int i = 0 ; i < 10; i++) {
+			frames[i] = pic.clone();
+		}
 
 		pthread_mutex_lock(&lock); // LOCK START ************************
 		clips->push(frames); // add array to queue
 		printf("#%lu ADDED\n", clips->size());
-		pthread_mutex_unlock(&lock); // LOCK START ************************ 
+		pthread_mutex_unlock(&lock); // LOCK START ************************  */
+
+
 	} 
 	thread0Finish = 1;
 }
