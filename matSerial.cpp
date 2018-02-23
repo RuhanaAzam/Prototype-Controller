@@ -10,6 +10,7 @@ vector<unsigned char> matWrite(const Mat& mat)
 
     std::vector<int> params;
     params.push_back(cv::IMWRITE_JPEG_QUALITY);
+    params.push_back(90);
     vector<unsigned char> buf;
     cv::imencode(".jpg", _InputArray(mat), buf ,params);
     return buf;

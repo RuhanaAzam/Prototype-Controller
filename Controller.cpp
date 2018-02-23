@@ -57,7 +57,10 @@ void Controller::send_group(){
 				cv::Mat a = matRead(buf);
 				std::vector<int> params;
 				params.push_back(cv::IMWRITE_JPEG_QUALITY);
-				cv::imwrite("/Users/ruhana/CAM2/Prototype-Controller/final.jpg", a, params);
+				params.push_back(90);
+				char buff [strlen("/Users/ruhana/CAM2/Prototype-Controller/image out/final.jpg") + 1];
+				sprintf(buff,"/Users/ruhana/CAM2/Prototype-Controller/image out/final%d.jpg", i);
+				cv::imwrite(buff, a, params);
 			}
 			
 		}		
@@ -100,7 +103,7 @@ void Controller::read_video(string filename){
     	thread0Finish = 1; // added to notify when read_video thread ends
     	lock.unlock();
     	return;
-    } */
+    }  */
 	clips->push(group);
 
 	//pthread_mutex_unlock(&lock);
@@ -173,8 +176,8 @@ void * Controller::send_group_thread_callback(void *controllerPtr) {
 
 void * Controller::read_video_thread_callback(void * controllerPtr) {
 	Controller * controller = (Controller*) controllerPtr;
-	//controller->read_video("video.MOV"); //uncomment this later!
-	controller->push_test(); // place holder for now
+	controller->read_video("video.MOV"); //uncomment this later!
+	//controller->push_test(); // place holder for now
 	return controllerPtr;
 }
 
@@ -190,9 +193,10 @@ void Controller::push_test() {
 		//pthread_mutex_lock(&lock); // LOCK START ************************
 		clips->push(frames); // add array to queue
 		//pthread_mutex_unlock(&lock); // LOCK END*************************
+		printf("#%lu ADDED\n", clips->size());
 		lock.unlock();
 
-		printf("#%lu ADDED\n", clips->size());
+		
 	} 
 	thread0Finish = 1;
 }
