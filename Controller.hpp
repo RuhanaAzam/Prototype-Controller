@@ -16,7 +16,9 @@ class Controller{
 		int worker; // number of workers
 		int groupSize; //number of frames 
 		queue<vector<Mat> > *clips;
-		pthread_mutex_t lock;
+		//pthread_mutex_t lock;
+		std::mutex lock;
+
 		
 		
 	public:
