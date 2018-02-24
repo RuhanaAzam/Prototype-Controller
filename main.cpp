@@ -24,6 +24,7 @@ int main() {
 	Controller * c = new Controller(4,clips, groupSize);
 	//c->push_test();
 	//c->send_group();
+	
 	c->start();
 	//c->read_video("video.MOV");
 	//c->send_group();
