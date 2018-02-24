@@ -113,7 +113,6 @@ void Controller::read_video(string filename){
 	clips->push(group);
 
 //	pthread_mutex_unlock(&lock);
-	cout << "OUTSIDE?" << endl;
 	groupNum++;
 
 	if(waitKey(30) >= 0)
@@ -126,7 +125,7 @@ void Controller::read_video(string filename){
 
 
 void Controller::print_queue(queue<vector<Mat> > *clips){
-/*	cout << "Check queue by printing queue" << endl;
+	cout << "Check queue by printing queue" << endl;
 	vector<Mat> a;
 
 	int num = 0;
@@ -135,7 +134,7 @@ void Controller::print_queue(queue<vector<Mat> > *clips){
 		clips->pop();
 		cout << i << endl;
 	}
-*/
+
 }
 void Controller::receive(queue<string> msgs){
 
