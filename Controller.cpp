@@ -13,7 +13,6 @@ using namespace std;
 //#include "opencv2/core/mat.hpp"
 //#include "opencv2/core.hpp"'
 #include "opencv2/opencv.hpp"
-#include "cv_serial.cpp"
 
 
 
@@ -28,7 +27,9 @@ Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize) //
 
 
 void Controller::send_group(){
+	//cout <<"Inside send_group()\n";
 	while(1) { 
+
 		lock.lock();
 		//pthread_mutex_lock(&lock); // LOCK START ************************
 		if(clips->empty()) { // exits function when empty
@@ -44,7 +45,7 @@ void Controller::send_group(){
 			//printf("%d\t", clips->empty());
 			frames = clips->front();
 			clips->pop();
-			printf("#%lu REMOVED : \n", clips->size());
+			printf("#%d REMOVED : \n", index/30);
 			
 			//pthread_mutex_unlock(&lock); // LOCK END**********************
 			lock.unlock();
@@ -210,4 +211,11 @@ void Controller::push_test() {
 	thread0Finish = 1;
 }
 
+/*
+Controller::~Controller(){
 
+
+	delete cu;
+
+}
+*/
