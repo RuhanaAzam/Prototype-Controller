@@ -1,1 +1,2 @@
-g++ -std=c++11 -pthread $1 $2 -lopencv_core -lopencv_highgui -lopencv_video 
+g++ -g -std=c++11 -pthread $1 $2 -lopencv_core -lopencv_highgui -lopencv_video 
+

@@ -13,15 +13,21 @@ int main(int, char**){
 
   string filename = "1.mp4";
   int groupSize = 30;
-  queue<Mat*>*clips;
+  queue<vector<Mat>>* clips = new queue<vector<Mat>>();
   Controller *controller = new Controller(3,clips,5);
-
-  controller->read_video(filename);
-
+  
+ // controller->read_video(filename);
+  controller->start();
+  cout << "THe size is: " << clips->size() << endl;
   controller->print_queue(clips);
 
+  queue<string> msgs;
+  msgs.push("It's connected");
+  msgs.push("It is groupting");
+  msgs.push("It was created already");
+ 
 
-
+  controller->receive(msgs);
 
 
 }

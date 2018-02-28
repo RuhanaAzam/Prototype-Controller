@@ -45,7 +45,8 @@ void Controller::send_group(){
 			//printf("%d\t", clips->empty());
 			frames = clips->front();
 			clips->pop();
-			printf("#%lu REMOVED\n", clips->size());
+			printf("#%lu REMOVED : \n", clips->size());
+			
 			//pthread_mutex_unlock(&lock); // LOCK END**********************
 			lock.unlock();
 			
@@ -59,10 +60,12 @@ void Controller::send_group(){
 				std::vector<int> params;
 				params.push_back(cv::IMWRITE_JPEG_QUALITY);
 				params.push_back(90);
-				char buff [strlen("/Users/ruhana/CAM2/Prototype-Controller/image out/final.jpg") + 1];
-				sprintf(buff,"/Users/ruhana/CAM2/Prototype-Controller/image out/final%d.jpg", i);
+				char buff [strlen("/home/nvidia/jisoo/Prototype-Controller/image_out/final.jpg") + 1];
+				sprintf(buff,"/home/nvidia/jisoo/Prototype-Controller/image_out/final%d.jpg", index);
+				index++;
 				cv::imwrite(buff, a, params);
 			}
+			
 			
 		}		
 	}
@@ -77,7 +80,6 @@ void Controller::read_video(string filename){
          cout << "It's not opening the file" << endl;
 	 return;
     }
-
    vector<Mat> group;
 
    Mat frame;
@@ -106,11 +108,17 @@ void Controller::read_video(string filename){
     	return;
     }  */
 	clips->push(group);
-
 	//pthread_mutex_unlock(&lock);
+	//cout << "Reading video\n";	
+	printf("#%lu Reading the video\n", clips->size());
+
+
 	lock.unlock();
-	cout << "OUTSIDE?" << endl;
+	
+//	cout << "OUTSIDE?" << endl;
 	groupNum++;
+	
+
 
 	if(waitKey(30) >= 0)
 		break;
@@ -123,7 +131,7 @@ void Controller::read_video(string filename){
 
 
 void Controller::print_queue(queue<vector<Mat> > *clips){
-/*	cout << "Check queue by printing queue" << endl;
+	cout << "Check queue by printing queue" << endl;
 	vector<Mat> a;
 
 	int num = 0;
@@ -132,7 +140,7 @@ void Controller::print_queue(queue<vector<Mat> > *clips){
 		clips->pop();
 		cout << i << endl;
 	}
-*/
+
 }
 void Controller::receive(queue<string> msgs){
 
@@ -152,6 +160,7 @@ void Controller::receive(queue<string> msgs){
 }
 
 void Controller::start(){
+		index = 0;
 		thread0Finish = 0;
 		pthread_t sendThread;
 		pthread_t readThread;
@@ -177,7 +186,7 @@ void * Controller::send_group_thread_callback(void *controllerPtr) {
 
 void * Controller::read_video_thread_callback(void * controllerPtr) {
 	Controller * controller = (Controller*) controllerPtr;
-	controller->read_video("video.MOV"); //uncomment this later!
+	controller->read_video("1.mp4"); //uncomment this later!
 	//controller->push_test(); // place holder for now
 	return controllerPtr;
 }
