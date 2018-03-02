@@ -27,8 +27,8 @@ Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize) //
 
 
 void Controller::send_group(){
-	//cout <<"Inside send_group()\n";
 	while(1) { 
+
 
 		lock.lock();
 		//pthread_mutex_lock(&lock); // LOCK START ************************
@@ -205,7 +205,6 @@ void Controller::push_test() {
 		//pthread_mutex_unlock(&lock); // LOCK END*************************
 		printf("#%lu ADDED\n", clips->size());
 		lock.unlock();
-
 		
 	} 
 	thread0Finish = 1;
