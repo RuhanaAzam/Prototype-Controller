@@ -21,6 +21,7 @@ class Controller{
 		string filename;
 		int index;		
 
+		unsigned int messageID;
 		
 	public:
 		Controller(int worker, queue<vector<Mat> > *clips, int groupSize);
@@ -34,7 +35,10 @@ class Controller{
 		int thread0Finish;
 		static void * send_group_thread_callback(void *controllerPtr);
 		static void * read_video_thread_callback(void * controllerPtr);
+//		~Controller();
+
 };
+
 
 
 

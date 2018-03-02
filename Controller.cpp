@@ -6,7 +6,7 @@
 #include <queue>
 #include <vector>
 #include <pthread.h>
-
+#include <bitset>
 using namespace cv;
 using namespace std;
  
@@ -23,6 +23,7 @@ Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize) //
 	this->groupSize = groupSize;
 	this->clips = clips;
 	cu = new ComUnit;
+	messageID = 0;
 } 
 
 
@@ -96,25 +97,16 @@ void Controller::read_video(string filename){
           cap >> frame; // get a new frame from camera
 	 // imshow("video", *frame);
 	 //cout << frameNum << endl;
-	  //group[i] = frame;
 	  group.push_back(frame);
         }
 
 	//pthread_mutex_lock(&lock);
-    lock.lock();
-    /*if(clips->size() > 10 ) {
-    	thread0Finish = 1; // added to notify when read_video thread ends
-    	lock.unlock();
-    	return;
-    }  */
-	clips->push(group);
-	//pthread_mutex_unlock(&lock);
-	//cout << "Reading video\n";	
+    	lock.lock();
+    	clips->push(group);
 	printf("#%lu Reading the video\n", clips->size());
 
 
 	lock.unlock();
-	
 //	cout << "OUTSIDE?" << endl;
 	groupNum++;
 	
@@ -125,7 +117,6 @@ void Controller::read_video(string filename){
 	}
 	thread0Finish = 1; // added to notify when read_video thread ends
 }
-//    thread0Finish = 1; // added to notify when read_video thread ends
 
 
 
@@ -150,11 +141,15 @@ void Controller::receive(queue<string> msgs){
 		return;
 	}
 
+
 	cout << "START RECEIVING MESSAGES" << endl;
+
 
 	while(msgs.size()!=0){
 
-		cout << msgs.front() << endl;
+		messageID++;
+		bitset<32> num(messageID);
+		cout << num  << " | " <<msgs.front() << endl;
 		msgs.pop();
 	}
 }
