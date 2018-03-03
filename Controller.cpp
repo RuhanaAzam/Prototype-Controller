@@ -7,7 +7,7 @@
 #include <vector>
 #include <pthread.h>
 #include <bitset>
-#inlcude "CommUnit.hpp"
+#include "CommUnit.hpp"
 using namespace cv;
 using namespace std;
  
