@@ -43,7 +43,7 @@ void StartTransport::establishCommunicationThread(asio::io_service& ios_, char *
 
 //comm unit funcs
 CommUnit::CommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<char *> &inQueue, Queue<char *> &outQueue){
-
+	initializeCommUnit(io_service_, hostport_, localport_, host_, inQueue, outQueue);
 }
 
 void CommUnit::establishServer(short port_, asio::io_service& ios_, Queue<char *> &inQueue, Queue<char*> &outQueue){
@@ -74,9 +74,16 @@ ClientUnit::ClientUnit(asio::io_service& io_service, char *host, char *port, Que
 	while(ec){
 		asio::connect(socket_, endpoints_, ec);
 	}
+	
+	for(;;){
+		send();
+	}
+		
 }
 
-void ClientUnit::send(char *msg_){
+void ClientUnit::send(){
+	
+	char *msg_ = inQueue.pop();
 	char header_[7];
 	buildHeader(msg_, header_);
 	
@@ -154,6 +161,7 @@ int ServerUnit::read(){
 	}
 	
 	//push recieved message to queue
+	std::cout << "Message Recieved: " << body_ << std::endl;
 	inQueue.push(body_);
 	return EXIT_SUCCESS;
 }

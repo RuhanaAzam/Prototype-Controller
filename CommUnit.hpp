@@ -75,7 +75,7 @@ public:
 	ClientUnit(asio::io_service& io_service, char *host, char *port, Queue<char *> &inQueue, Queue<char *> &outQueue);
 	
 	//send a string to the socket
-	void send(char *send_this_);
+	void send();
 	
 	//build packet to send to socket
 	void buildPacketToSend(char *message_, char *send_this_, char *header_);
