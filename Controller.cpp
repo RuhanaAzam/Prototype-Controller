@@ -84,7 +84,7 @@ void Controller::read_video(string filename){
    vector<Mat> group;
 
    Mat frame;
-   namedWindow("w",1);
+   //namedWindow("w",1);
    for(;;)
 
     {
