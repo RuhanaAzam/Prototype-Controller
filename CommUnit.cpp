@@ -12,6 +12,10 @@
 //start transport funcs
 
 StartTransport::StartTransport(std::vector<ConnectionInfo*> v)/*:ios_()*/{
+	this -> v = v;
+}
+
+void StartTransport::start(){
 	int i = 0;
 	std::vector<std::shared_ptr<std::thread> > threads;
 	for ( i = 0; i < v.size(); i++){
@@ -22,18 +26,7 @@ StartTransport::StartTransport(std::vector<ConnectionInfo*> v)/*:ios_()*/{
 	for (i = 0; i < threads.size(); i++){
 		(threads[i]) -> join();
 	}
-//	asio::io_service& ios_;
-		
-	
-	//Initialize three Communication Units
-	//std::thread t1 = std::thread(&StartTransport::establishCommunicationThread, this, std::ref(ios_), worker1_, local1_, workerIP1_);
-	
-	//std::thread t2 = std::thread (&StartTransport::establishCommunicationThread, this, std::ref(ios_), worker2_, local2_, workerIP2_);
 
-	//std::thread t3 = std::thread (&StartTransport::establishCommunicationThread, this, std::ref(ios_), worker3_, local3_, workerIP3_);
-	//t1.join();
-	//t2.join();
-	//t3.join();
 }
 
 void StartTransport::establishCommunicationThread(asio::io_service& ios_, char *workerPort_, char *localPort_, char *IP_){
