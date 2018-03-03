@@ -7,17 +7,8 @@
 #include <ctime>
 #include "asio.hpp"
 #include "queue.hpp"
-#include "commUnit.hpp"
+#include "CommUnit.hpp"
 
-
-static void testQueue(Queue<char *> &outQueue){
-	int i = 0;
-	for ( i = 0; i < 1000; i++){
-	for ( i = 0; i < 1000000; i++){
-	char *tst = (char *)malloc(sizeof(char)*7);
-	sprintf(tst, "%4d", i);
-	outQueue.push(tst);
-}
 int main(){
 
 	//local ports for each ServerUnit to use
@@ -37,15 +28,11 @@ int main(){
 	
 	std::vector<ConnectionInfo*> v;
 	ConnectionInfo *temp = (ConnectionInfo *)malloc(sizeof(ConnectionInfo));
-	temp -> hostIP_ = workerIP1;
+	temp -> hostIP_ = workerIP1_;
 	temp -> hostPort_ = worker1_;
 	temp -> localPort_ = local1_;
 	
 	v.push_back(temp);
 	
 	StartTransport s(v);
-
-
-
-	
 }
