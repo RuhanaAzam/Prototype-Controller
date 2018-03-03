@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string>
 #include <queue>
+#include "queue.hpp"
 #include <vector>
 #include <pthread.h>
 #include <bitset>
@@ -47,15 +48,32 @@ void Controller::send_group(){
 			//printf("%d\t", clips->empty());
 			frames = clips->front();
 			clips->pop();
-			printf("#%d REMOVED : \n", index/30);
+//			printf("#%d REMOVED : \n", index/30);
 			
 			//pthread_mutex_unlock(&lock); // LOCK END**********************
 			lock.unlock();
 			
 
 			for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
-				vector<unsigned char> buf = matWrite(frames[i]);
-				//cu->sent(buf); // send to comUnit
+				//vector<unsigned char> buf = matWrite(frames[i]);
+				
+				std::vector<unsigned char> buf;
+				for (int i = 0; i < 100000; i++){
+					buf.push_back('C');
+				}
+				
+				int actual_size = static_cast<int>(buf.size());
+				printf("actual_size:   %d\n", actual_size);
+				//char * temp = (char*)malloc(sizeof(buf.size()+1));
+				char* temp = new char[actual_size+1];
+				for(int j = 0; j < actual_size; j++) {
+					temp[j] = buf[j];
+				}
+				temp[buf.size()] = '\0';
+				printf("alen:       %lu\n", strlen(temp));
+				//printf("len: %lu", strlen(temp));
+				
+				cu->outQueue.push(temp); // send to comUnit
 
 				// ADDED FOR VERIFICATION // REMOVE LATER
 				cv::Mat a = matRead(buf);
@@ -104,7 +122,7 @@ void Controller::read_video(string filename){
 	//pthread_mutex_lock(&lock);
     	lock.lock();
     	clips->push(group);
-	printf("#%lu Reading the video\n", clips->size());
+//	printf("#%lu Reading the video\n", clips->size());
 
 
 	lock.unlock();
@@ -155,16 +173,16 @@ void Controller::receive(queue<string> msgs){
 	}
 }
 
-void Controller::start(){
+void  Controller::start(){
 		index = 0;
 		thread0Finish = 0;
 		pthread_t sendThread;
 		pthread_t readThread;
-		
+	
 		int a = pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		int b = pthread_create(&readThread, NULL, Controller::read_video_thread_callback, this);
 		if (a == -1 || b == -1) {printf("Issue Creating Thread %d %d\n",a,b); exit(1);}
-
+		
 		while(!thread0Finish) {
 			pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		} 

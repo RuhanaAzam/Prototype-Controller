@@ -44,7 +44,9 @@ void CommUnit::establishServer(short port_, asio::io_service& ios_, Queue<char *
 }
 
 void CommUnit::establishClient(asio::io_service& ios_, char *host_, char *port_, Queue<char *> &inQueue, Queue<char *> &outQueue){
+	printf("here\n");
 	ClientUnit client(ios_, host_, port_, inQueue, outQueue);
+	printf("end\n");
 
 }
 
@@ -61,13 +63,15 @@ void CommUnit::initializeCommUnit(asio::io_service& io_service_, char *hostport_
 //client unit funcs
 ClientUnit::ClientUnit(asio::io_service& io_service, char *host, char *port, Queue<char *> &inQueue, Queue<char *> &outQueue)
 : io_service_(io_service), socket_(io_service), resolver_(io_service), query_(host,port), ec(), inQueue(inQueue), outQueue(outQueue){
-
+	printf("connect 1\n");
 	endpoints_ = resolver_.resolve(query_);
+	std::cout << host << "+" << port << std::endl;
 	asio::connect(socket_, endpoints_, ec);
 	while(ec){
 		asio::connect(socket_, endpoints_, ec);
 	}
-	
+
+	printf("connected\n");	
 	for(;;){
 		send();
 	}
@@ -75,16 +79,24 @@ ClientUnit::ClientUnit(asio::io_service& io_service, char *host, char *port, Que
 }
 
 void ClientUnit::send(){
-	
-	char *msg_ = inQueue.pop();
+	//	printf("%lu", outQueue.queue_.size());	
+	std::cout << "entering" << std::endl;	
+	char *msg_ = outQueue.pop();
+	std::cout << "finish pop" << std::endl;
+	std::cout << msg_ << std::endl;
+	printf("msg: %lu\n", strlen(msg_) );
 	char header_[7];
 	buildHeader(msg_, header_);
+	printf("msg: %lu\n",strlen(msg_) );
+	
 	
 	char send_this_[8 + (int)strlen(msg_)];
 	buildPacketToSend(msg_, send_this_, header_);
+	printf("send this %lu\n",sizeof( send_this_));
 	//send to socket
 	asio::write(socket_, asio::buffer((std::string) send_this_),
 	asio::transfer_all(), ec);
+	std::cout << "yyyyyy" << std::endl;
 }
 	
 //build packet to send to socket
