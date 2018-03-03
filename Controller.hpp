@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
-#include "ComUnit.cpp"
+#include "CommUnit.cpp"
 
 
 using namespace std;
@@ -12,7 +12,7 @@ class Controller{
 
 
 	private:
-		ComUnit * cu; // communication unit
+		StartTransport * cu; // communication unit
 		int worker; // number of workers
 		int groupSize; //number of frames 
 		queue<vector<Mat> > *clips;
@@ -24,7 +24,7 @@ class Controller{
 		unsigned int messageID;
 		
 	public:
-		Controller(int worker, queue<vector<Mat> > *clips, int groupSize);
+		Controller(int worker, queue<vector<Mat> > *clips, int groupSize, StartTransport * cu);
 		void send_group();
 		void read_video(string filename);
 		void push_test();
