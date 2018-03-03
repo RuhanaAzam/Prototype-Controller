@@ -1,3 +1,6 @@
+#ifndef COMM_UNIT_HPP
+#define COMM_UNIT_HPP
+
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -129,4 +132,4 @@ public:
 
 
 
-
+#endif

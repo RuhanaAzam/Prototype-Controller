@@ -29,13 +29,15 @@ int main(){
 
 	
 	std::vector<ConnectionInfo*> q;
-	ConnectionInfo* temp = (ConnectionInfo*)malloc(sizeof(ConnectionInfo));
+	ConnectionInfo temp;
 
-	temp -> hostIP_ = IP;
-	temp -> hostPort_ = worker1_;
-	temp -> localPort_ = local1_;
+	temp.hostIP_ = IP;
+	temp.hostPort_ = worker1_;
+	temp.localPort_ = local1_;
+	q.push_back(&temp);
 
-	StartTransport s(q);
+	thread t(StartTransport, q);
+	t.join();
 
 
 
