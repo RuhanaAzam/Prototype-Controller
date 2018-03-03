@@ -19,15 +19,15 @@ int main(int, char**){
 
 
 
- // controller->start();
+  controller->start();
 
 
   queue<string> msgs;
 
-  msgs.push("It's connected");
-  msgs.push("It is groupting");
-  msgs.push("It was created already");
-  controller->receive(msgs);
+  //msgs.push("It's connected");
+  //msgs.push("It is groupting");
+  //msgs.push("It was created already");
+  //controller->receive(msgs);
 
 
 
