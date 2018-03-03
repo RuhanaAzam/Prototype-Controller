@@ -26,6 +26,7 @@ class StartTransport{
 public:
 	Queue<char *> inQueue;
 	Queue<char *> outQueue;
+	std::vector<ConnectionInfo*> v;
 	asio::io_service ios_;
 	//std::thread t1;
 	//std::thread t2;
@@ -33,7 +34,7 @@ public:
 	
 
 	void establishCommunicationThread(asio::io_service& ios_, char *workerPort1_, char *local1_, char *workerIP1_);
-
+	void start();
 	StartTransport(std::vector<ConnectionInfo*> v);
 	//StartTransport(char *local1_, char *local2_, char *local3_, char *workerport1_, char *workerport2_, char *workerport3_, char *workerIP1_, char *workerIP2_, char *workerIP3_);
 };
