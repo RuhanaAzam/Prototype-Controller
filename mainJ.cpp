@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string>
 #include "opencv2/opencv.hpp"
+//#include "CommUnit.cpp"
 //This main fucntion is for testing read_viode() function
 
 
@@ -14,7 +15,8 @@ int main(int, char**){
   string filename = "1.mp4";
   int groupSize = 30;
   queue<vector<Mat>>* clips = new queue<vector<Mat>>();
-  Controller *controller = new Controller(3,clips,5);
+  	StartTransport * cu = new StartTransport(NULL);
+	Controller *controller = new Controller(3,clips,5,cu);
   
 
 

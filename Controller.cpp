@@ -17,12 +17,12 @@ using namespace std;
 
 
 
-Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize) // constructor
+Controller::Controller(int worker, queue<vector<Mat> > *clips, int groupSize, StartTransport * cu) // constructor
 {
 	this->worker = worker;
 	this->groupSize = groupSize;
 	this->clips = clips;
-	cu = new ComUnit;
+	this->cu = cu;
 	messageID = 0;
 } 
 
@@ -54,7 +54,7 @@ void Controller::send_group(){
 
 			for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
 				vector<unsigned char> buf = matWrite(frames[i]);
-				cu->sent(buf); // send to comUnit
+				//cu->sent(buf); // send to comUnit
 
 				// ADDED FOR VERIFICATION // REMOVE LATER
 				cv::Mat a = matRead(buf);
