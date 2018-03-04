@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "matSerial.hpp"
 
 using namespace std;
 using namespace cv;
 
-vector<unsigned char> matWrite(const Mat& mat)
+std::vector<unsigned char> matWrite(const Mat& mat)
 {
 
     std::vector<int> params;
@@ -17,11 +18,8 @@ vector<unsigned char> matWrite(const Mat& mat)
 }
 
 
-Mat matRead(vector<unsigned char> buf)
+Mat matRead(std::vector<unsigned char> buf)
 {
     cv::Mat a = cv::imdecode(buf, CV_LOAD_IMAGE_COLOR);
     return a;
 }
-
-
-

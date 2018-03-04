@@ -11,7 +11,7 @@
 
 //start transport funcs
 
-StartTransport::StartTransport(std::vector<ConnectionInfo*> v)/*:ios_()*/{
+StartTransport::StartTransport(std::vector<ConnectionInfo*> v){
 	this -> v = v;
 }
 
@@ -22,7 +22,6 @@ void StartTransport::start(){
 		std::shared_ptr<std::thread> t(new std::thread(&StartTransport::establishCommunicationThread, this, std::ref(ios_), v[i]->hostPort_, v[i]->localPort_, v[i]->hostIP_));
 		threads.push_back(t);
 	}
-	//std::thread tx = std::thread(testQueue
 	for (i = 0; i < threads.size(); i++){
 		(threads[i]) -> join();
 	}
@@ -35,22 +34,20 @@ void StartTransport::establishCommunicationThread(asio::io_service& ios_, char *
 
 
 //comm unit funcs
-CommUnit::CommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<char *> &inQueue, Queue<char *> &outQueue){
+CommUnit::CommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue){
 	initializeCommUnit(io_service_, hostport_, localport_, host_, inQueue, outQueue);
 }
 
-void CommUnit::establishServer(short port_, asio::io_service& ios_, Queue<char *> &inQueue, Queue<char*> &outQueue){
+void CommUnit::establishServer(short port_, asio::io_service& ios_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue){
 	ServerUnit server(ios_, port_, inQueue, outQueue);
 }
 
-void CommUnit::establishClient(asio::io_service& ios_, char *host_, char *port_, Queue<char *> &inQueue, Queue<char *> &outQueue){
-	printf("here\n");
+void CommUnit::establishClient(asio::io_service& ios_, char *host_, char *port_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue){
 	ClientUnit client(ios_, host_, port_, inQueue, outQueue);
-	printf("end\n");
 
 }
 
-void CommUnit::initializeCommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<char *> &inQueue, Queue<char *> &outQueue){
+void CommUnit::initializeCommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue){
 		
 	std::thread t1 = std::thread (establishServer, atoi(localport_), std::ref(io_service_), std::ref(inQueue), std::ref(outQueue));
 	
@@ -61,17 +58,14 @@ void CommUnit::initializeCommUnit(asio::io_service& io_service_, char *hostport_
 }
 
 //client unit funcs
-ClientUnit::ClientUnit(asio::io_service& io_service, char *host, char *port, Queue<char *> &inQueue, Queue<char *> &outQueue)
+ClientUnit::ClientUnit(asio::io_service& io_service, char *host, char *port, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue)
 : io_service_(io_service), socket_(io_service), resolver_(io_service), query_(host,port), ec(), inQueue(inQueue), outQueue(outQueue){
-	printf("connect 1\n");
 	endpoints_ = resolver_.resolve(query_);
-	std::cout << host << "+" << port << std::endl;
 	asio::connect(socket_, endpoints_, ec);
 	while(ec){
 		asio::connect(socket_, endpoints_, ec);
 	}
-
-	printf("connected\n");	
+	std::cout << "ClientUnit succesfully connected to a ServerUnit" << std::endl;
 	for(;;){
 		send();
 	}
@@ -79,49 +73,45 @@ ClientUnit::ClientUnit(asio::io_service& io_service, char *host, char *port, Que
 }
 
 void ClientUnit::send(){
-	//	printf("%lu", outQueue.queue_.size());	
-	std::cout << "entering" << std::endl;	
-	char *msg_ = outQueue.pop();
-	std::cout << "finish pop" << std::endl;
-	std::cout << msg_ << std::endl;
-	printf("msg: %lu\n", strlen(msg_) );
+	MessageInfo *msgInfo_ = (MessageInfo *) (outQueue.pop());
+	char *msg_ = msgInfo_ -> msg_;
+	//build header
 	char header_[7];
-	buildHeader(msg_, header_);
-	printf("msg: %lu\n",strlen(msg_) );
-	
-	
-	char send_this_[8 + (int)strlen(msg_)];
-	buildPacketToSend(msg_, send_this_, header_);
-	printf("send this %lu\n",sizeof( send_this_));
+	buildHeader(msg_, header_, msgInfo_);
+
+	//build full packet ~ header + message	
+	char send_this_[8 + msgInfo_ -> size_];
+	buildPacketToSend(msg_, send_this_, header_, msgInfo_);
+
 	//send to socket
-	asio::write(socket_, asio::buffer((std::string) send_this_),
-	asio::transfer_all(), ec);
-	std::cout << "yyyyyy" << std::endl;
+	std::cout << "Sending Message: " << send_this_ << std::endl;
+	asio::write(socket_, asio::buffer(send_this_, 7 + msgInfo_ -> size_), ec);
+
+	//asio::transfer_all(), ec);
+	free(msgInfo_ -> msg_);
+	free(msgInfo_);
 }
 	
 //build packet to send to socket
-void ClientUnit::buildPacketToSend(char *message_, char *send_this_, char *header_){
+void ClientUnit::buildPacketToSend(char *msg_, char *send_this_, char *header_, MessageInfo* msgInfo_){
 	
 	//build body	
-	char body_[strlen(message_)];
-	strcpy(body_, message_);
+	char body_[msgInfo_ -> size_];
+	std::memcpy(body_, msg_, msgInfo_ -> size_);
 	
 	//concatenate body with header
-	strcpy(send_this_, header_);
-	strcat(send_this_, body_);
-	
-	//set delimeter
-	send_this_[7+strlen(message_)] = '\0';
+	std::memcpy(send_this_, header_, 7);
+	std::memcpy(send_this_ + 7, body_, msgInfo_ -> size_);
+	send_this_[7 + msgInfo_ -> size_] = '\0';
 }
 
 //build header for sending
-void ClientUnit::buildHeader(char *message_, char *header_){
-	std::size_t body_length_ = std::strlen(message_);
-	sprintf(header_, "%7d", static_cast<int>(body_length_));
+void ClientUnit::buildHeader(char *message_, char *header_, MessageInfo * msgInfo_){
+	sprintf(header_, "%7d", static_cast<int>(msgInfo_ -> size_));
 }
 	
 //server unit funcs
-ServerUnit::ServerUnit(asio::io_service& io_service_, short port_, Queue<char *> &inQueue, Queue<char *> &outQueue):acceptor_(io_service_, tcp::endpoint(tcp::v4(), port_)), socket_(io_service_),
+ServerUnit::ServerUnit(asio::io_service& io_service_, short port_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue):acceptor_(io_service_, tcp::endpoint(tcp::v4(), port_)), socket_(io_service_),
 inQueue(inQueue), outQueue(outQueue), port_(port_),ec(){
 		//if the client hangs up, the server cannot
 		//reconnect ~ if we want the server to always
@@ -134,6 +124,7 @@ inQueue(inQueue), outQueue(outQueue), port_(port_),ec(){
 void ServerUnit::accept(){
 	std::cout << "Making connection on port " << port_ << std::endl;
 	acceptor_.accept(socket_);
+	std::cout << "ServerUnit successfully connected to a ClientUnit" << std::endl;
 	for(;;){
 		//connection closed by connected client
 		if(read() == EXIT_FAILURE){
@@ -148,17 +139,33 @@ void ServerUnit::accept(){
 	
 //continuously read from socket_
 int ServerUnit::read(){
-	
+	MessageInfo * msgInfo_ = (MessageInfo *)malloc(sizeof(MessageInfo));
+	if(msgInfo_ == NULL){
+		std::cout << "Malloc failed in ServerUnit::read ~ msgInfo_" << std::endl;
+		return EXIT_FAILURE;
+	}
 	char *header_ = (char *)malloc(sizeof(char)*(8));
+	if(header_ == NULL){
+		std::cout << "Malloc failed in ServerUnit::read ~ header_" << std::endl;
+		return EXIT_FAILURE;
+	}
 	getHeader(header_);
 	//connection closed
 	if(ec == asio::error::eof){//connection closed by peer
 		std::cout << "ERROR: EOF REACHED: from header" << std::endl;
 		return EXIT_FAILURE;
 	}
+	//insert message size
+	msgInfo_ -> size_ = atoi(header_);
 	
-	char *body_ = (char*)malloc(sizeof(char)*(atoi(header_) + 1));
-	getBody(header_, body_);
+	//get body of message aka main part
+	char *body_ = (char*)malloc(sizeof(char)*(msgInfo_ -> size_ + 1));
+	if(body_  == NULL){
+		std::cout << "Malloc failed in ServerUnit::read ~ body_" << std::endl;
+		return EXIT_FAILURE;
+	}
+	getBody(msgInfo_, body_);
+
 	//connection closed
 	if(ec == asio::error::eof){
 		std::cout << "ERROR: EOF REACHED: for body" << std::endl;
@@ -166,8 +173,9 @@ int ServerUnit::read(){
 	}
 	
 	//push recieved message to queue
-	std::cout << "Message Recieved: " << body_ << std::endl;
-	inQueue.push(body_);
+	std::cout << "Message Recieved: " << header_ << body_ << std::endl;
+	msgInfo_ -> msg_ = body_;
+	inQueue.push(msgInfo_);
 	return EXIT_SUCCESS;
 }
 	
@@ -175,10 +183,7 @@ int ServerUnit::read(){
 void ServerUnit::getHeader(char *header_){
 	//read header of length 7 bytes from socket
 	int bytes_read_ = socket_.read_some(asio::buffer(header_, 7), ec);
-	
-	//set delimeter on header_
 	header_[7] = '\0';
-	
 	//check if we read wrong amount of bytes from socket
 	if(bytes_read_ != 7 && bytes_read_ != 0){
 		std::cout << "Incorrect number of bytes read when reading header" << std::endl;
@@ -186,22 +191,13 @@ void ServerUnit::getHeader(char *header_){
 }
 	
 //retreve body (message) of packet from socket
-void ServerUnit::getBody(char *header_, char *body_){
-	
-	//get body length from the header
-	header_[7] = '\0';
-	
-	//convert header to an integer representing incoming message length
-	int body_length_ = atoi(header_);
+void ServerUnit::getBody(MessageInfo *msgInfo_, char *body_){
 	
 	//read the message from socket
-	int bytes_read_ = asio::read(socket_, asio::buffer(body_, body_length_));
-	
-	//add delimeter
-	body_[body_length_] = '\0';
-	
+	int bytes_read_ = asio::read(socket_, asio::buffer(body_, (int) msgInfo_ -> size_));
+	body_[msgInfo_ -> size_] = '\0';
 	//check if we read wrong about of bytes from the socket
-	if(bytes_read_ != body_length_){
+	if(bytes_read_ != msgInfo_ -> size_){
 		std::cout << "ERROR: incorrect number of bytes read while reading body" <<std::endl;
 	}
 }

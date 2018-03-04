@@ -16,6 +16,11 @@ struct ConnectionInfo{
 	char *localPort_;
 };
 
+struct MessageInfo{
+	int ID_;
+	long size_;
+	char * msg_;
+};
 
 using asio::ip::tcp;
 /*****************************************
@@ -27,8 +32,8 @@ using asio::ip::tcp;
 *****************************************/
 class StartTransport{
 public:
-	Queue<char *> inQueue;
-	Queue<char *> outQueue;
+	Queue<MessageInfo *> inQueue;
+	Queue<MessageInfo *> outQueue;
 	std::vector<ConnectionInfo*> v;
 	asio::io_service ios_;
 	//std::thread t1;
@@ -53,16 +58,16 @@ public:
 class CommUnit{
 public:
 	//constructor
-	CommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<char *> &inQueue, Queue<char *> &outQueue);
+	CommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue);
 
 	//begin establishing a local server connection
-	static void establishServer(short port_, asio::io_service& ios_, Queue<char *> &inQueue, Queue<char*> &outQueue);
+	static void establishServer(short port_, asio::io_service& ios_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue);
 
 	//begin establishing a local client connection ~ keep trying to connect to a host server
-	static void establishClient(asio::io_service& ios_, char *host_, char *port_, Queue<char *> &inQueue, Queue<char *> &outQueue);
+	static void establishClient(asio::io_service& ios_, char *host_, char *port_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue);
 
 	//space to start threads to establish a ServerUnit&ClientUnit
-	void initializeCommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<char *> &inQueue, Queue<char *> &outQueue);
+	void initializeCommUnit(asio::io_service& io_service_, char *hostport_, char *localport_, char *host_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue);
 };
 
 
@@ -76,16 +81,16 @@ class ClientUnit{
 public:
 
 	//constructor
-	ClientUnit(asio::io_service& io_service, char *host, char *port, Queue<char *> &inQueue, Queue<char *> &outQueue);
+	ClientUnit(asio::io_service& io_service, char *host, char *port, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue);
 	
 	//send a string to the socket
 	void send();
 	
 	//build packet to send to socket
-	void buildPacketToSend(char *message_, char *send_this_, char *header_);
+	void buildPacketToSend(char *message_, char *send_this_, char *header_, MessageInfo* msgInfo_);
 
 	//build header for sending
-	void buildHeader(char *message_, char *header_);
+	void buildHeader(char *message_, char *header_, MessageInfo* msgInfo_);
 	
 	//variables
 	tcp::resolver resolver_;
@@ -94,8 +99,8 @@ public:
 	tcp::socket socket_;
 	asio::io_service& io_service_;
 	asio::error_code ec;
-	Queue<char *> &inQueue;
-	Queue<char *> &outQueue;
+	Queue<MessageInfo *> &inQueue;
+	Queue<MessageInfo *> &outQueue;
 };
 
 
@@ -108,7 +113,7 @@ public:
 class ServerUnit{
 public:
 	//constructor
-	ServerUnit(asio::io_service& io_service_, short port_, Queue<char *> &inQueue, Queue<char *> &outQueue);
+	ServerUnit(asio::io_service& io_service_, short port_, Queue<MessageInfo *> &inQueue, Queue<MessageInfo *> &outQueue);
 	
 	//accept connection with client trying to merge on port
 	void accept();
@@ -120,15 +125,15 @@ public:
 	void getHeader(char *header_);
 	
 	//retreve body (message) of packet from socket
-	void getBody(char *header_, char *body_);
+	void getBody(MessageInfo * msgInfo_, char *body_);
 
 	//variables
 	short port_;
 	asio::error_code ec;
 	tcp::acceptor acceptor_;
 	tcp::socket socket_;
-	Queue<char*>& inQueue;
-	Queue<char*>& outQueue;
+	Queue<MessageInfo *> &inQueue;
+	Queue<MessageInfo *> &outQueue;
 };
 
 

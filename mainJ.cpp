@@ -11,6 +11,16 @@
 
 using namespace std;
 using namespace cv;
+
+static void testQueue(StartTransport * s){
+	int i = 0;
+//	for ( i = 0; i < 10; i++){
+//		char *tst = (char *)malloc(sizeof(char)*1);
+//		sprintf(tst, "%d", i);
+//		(s -> outQueue).push(tst);
+//	}
+
+}
 int main(int, char**){
 
 
@@ -25,20 +35,21 @@ int main(int, char**){
         //static char worker3_[5] = {'5','1','1','2','\0'};
 
         //local ip address
-        static char workerIP1_[13] ={'1','9','2','.','1','6','8','.','1','.', '5', '1','\0'};
+//      static char workerIP1_[13] ={'1','9','2','.','1','6','8','.','1','.', '5', '1','\0'};
         static char workerIP2_[10] ={'1','2','7','.','0','.','0','.','1','\0'};
         static char workerIP3_[10] ={'1','2','7','.','0','.','0','.','1','\0'};
 
         std::vector<ConnectionInfo*> v;
         ConnectionInfo *temp = (ConnectionInfo *)malloc(sizeof(ConnectionInfo));
-        temp -> hostIP_ = workerIP1_;
+	if(temp == NULL){
+		std::cout << "Malloc failed in Main" << std::endl;
+		return EXIT_FAILURE;
+	 }
+        temp -> hostIP_ = workerIP2_;
         temp -> hostPort_ = worker1_;
         temp -> localPort_ = local1_;
-
+	
         v.push_back(temp);
-
-      
-
 
   	string filename = "1.mp4";
   	int groupSize = 30;
@@ -50,14 +61,20 @@ int main(int, char**){
 
                 //int a = pthread_create(&comUThread, NULL, cu->start, (void*)&comUThread);
                 //int b = pthread_create(&controlThread, NULL, controller->start(), (void*)&controlThread);  	
-		std::thread t1 = std::thread (&StartTransport::start, cu);
-		std::thread t2 = std::thread(&Controller::start, controller);
-		t1.join();
-		t2.join();
+	std::thread t1 = std::thread (&StartTransport::start, cu);
+	std::thread t2 = std::thread(&Controller::start, controller);
+	t2.join();
+	std::cout << "Waiting for StartTransport to join...... therefor Controller is done" << std::endl;
+	t1.join();
+	
+//	delete[] clips;
+//	delete[] cu
+//	delete[] controller;
+//	free(temp);
 	//controller->start();
 
 
-  	queue<string> msgs;
+  	//queue<string> msgs;
 
   //msgs.push("It's connected");
   //msgs.push("It is groupting");
