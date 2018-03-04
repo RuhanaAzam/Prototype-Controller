@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
-#include "CommUnit.cpp"
+#include "CommUnit.hpp"
 
 
 using namespace std;
