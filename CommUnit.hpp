@@ -25,10 +25,9 @@ struct MessageInfo{
 using asio::ip::tcp;
 /*****************************************
 * Establishes initial call to commUnit
-* initialization. To change the number
-* of desired commUnits to establish, 
-* one must manually change in
-* the constructors definition
+* initialization. Number of CommUnits 
+* initialized depends on the length of the
+* vector passed to parameters
 *****************************************/
 class StartTransport{
 public:
@@ -36,15 +35,10 @@ public:
 	Queue<MessageInfo *> outQueue;
 	std::vector<ConnectionInfo*> v;
 	asio::io_service ios_;
-	//std::thread t1;
-	//std::thread t2;
-	//std::thread t3;
-	
 
 	void establishCommunicationThread(asio::io_service& ios_, char *workerPort1_, char *local1_, char *workerIP1_);
 	void start();
 	StartTransport(std::vector<ConnectionInfo*> v);
-	//StartTransport(char *local1_, char *local2_, char *local3_, char *workerport1_, char *workerport2_, char *workerport3_, char *workerIP1_, char *workerIP2_, char *workerIP3_);
 };
 
 /*******************************************************
