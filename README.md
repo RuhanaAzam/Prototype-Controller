@@ -11,10 +11,10 @@ we manually control threads and avoid use of ASIO's asynchronous operations.
 
 
 Compilation for manager:
-> ./compileManager
+> ./managerCompile
 
 Compilation for worker:
-> ./compileWorker
+> ./workerCompile
 
 
 
