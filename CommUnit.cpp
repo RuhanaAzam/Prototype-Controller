@@ -108,7 +108,7 @@ void ClientUnit::buildPacketToSend(char *msg_, char *send_this_, char *header_, 
 
 //build header for sending
 void ClientUnit::buildHeader(char *message_, char *header_, MessageInfo * msgInfo_){
-	memcpy(header_, &msgInfo_ -> size_, sizeof(msgInfo_ -> size_));
+	std::memcpy(header_, &msgInfo_ -> size_, sizeof(msgInfo_ -> size_));
 }
 	
 //server unit funcs
@@ -145,7 +145,7 @@ int ServerUnit::read(){
 		std::cout << "Malloc failed in ServerUnit::read ~ msgInfo_" << std::endl;
 		return EXIT_FAILURE;
 	}
-	char *header_ = (char *)malloc(sizeof(char)*(8));
+	char *header_ = (char *)malloc(sizeof(char)*header_length);
 	if(header_ == NULL){
 		std::cout << "Malloc failed in ServerUnit::read ~ header_" << std::endl;
 		return EXIT_FAILURE;
@@ -157,7 +157,7 @@ int ServerUnit::read(){
 		return EXIT_FAILURE;
 	}
 	//insert message size
-	memcpy(&msgInfo_ -> size_, header_, header_length);
+	std::memcpy(&msgInfo_ -> size_, header_, header_length);
 	
 	//get body of message aka main part
 	char *body_ = (char*)malloc(sizeof(char)*(msgInfo_ -> size_ + 1));
@@ -174,7 +174,7 @@ int ServerUnit::read(){
 	}
 	
 	//push recieved message to queue
-	std::cout << "Received Message Size: " << sizeof(header_) << body_ << std::endl;
+	std::cout << "Received Message Size: " << sizeof(header_) + sizeof(body_) << std::endl;
 	msgInfo_ -> msg_ = body_;
 	inQueue.push(msgInfo_);
 	return EXIT_SUCCESS;
@@ -198,7 +198,7 @@ void ServerUnit::getBody(MessageInfo *msgInfo_, char *body_){
 	body_[msgInfo_ -> size_] = '\0';
 	//check if we read wrong about of bytes from the socket
 	if(bytes_read_ != msgInfo_ -> size_){
-		std::cout << "ERROR: incorrect number of bytes read while reading body" <<std::endl;
+		std::cout << "ERROR: incorrect number of bytes read while reading body" << std::endl;
 	}
 }
 
