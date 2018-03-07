@@ -95,6 +95,10 @@ public:
 	asio::error_code ec;
 	Queue<MessageInfo *> &inQueue;
 	Queue<MessageInfo *> &outQueue;
+
+	//header stores size of message
+	//depends on data type of message size in message structure
+	enum { header_length = sizeof(long) };
 };
 
 
@@ -128,6 +132,10 @@ public:
 	tcp::socket socket_;
 	Queue<MessageInfo *> &inQueue;
 	Queue<MessageInfo *> &outQueue;
+
+	//header stores size of message
+	//depends on data type of message size in message structure
+	enum { header_length = sizeof(long) };
 };
 
 
