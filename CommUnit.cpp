@@ -134,9 +134,9 @@ inQueue(inQueue), outQueue(outQueue), port_(port_),ec(){
 void ServerUnit::accept(){
 	std::cout << "Making connection on port " << port_ << std::endl;
 	acceptor_.accept(socket_);
-	for(;;){
+	for(int i = 0;;i++){
 		//connection closed by connected client
-		if(read() == EXIT_FAILURE){
+		if(read(i) == EXIT_FAILURE){
 			break;
 		}
 		
@@ -147,7 +147,7 @@ void ServerUnit::accept(){
 }
 	
 //continuously read from socket_
-int ServerUnit::read(){
+int ServerUnit::read(int i){
 	
 	char *header_ = (char *)malloc(sizeof(char)*(8));
 	getHeader(header_);
@@ -166,8 +166,19 @@ int ServerUnit::read(){
 	}
 	
 	//push recieved message to queue
-	std::cout << "Message Recieved: " << body_ << std::endl;
-	inQueue.push(body_);
+	std::cout << "Message Recieved: " << sizeof(body_) << std::endl;
+	char line[9];
+	sprintf(line, "9%03d.png", i);
+	FILE* fp = fopen(line, "r");
+	if(fp == NULL)
+	{
+		cout << "fopen failed\n";
+		cout << "filename = " << line << "\n";
+		break;
+	}
+	fwrite(body_, sizeof(char), sizeof(body_), fp);
+	fclose(fp);
+	//inQueue.push(body_);
 	return EXIT_SUCCESS;
 }
 	

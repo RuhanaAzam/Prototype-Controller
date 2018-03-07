@@ -40,7 +40,7 @@ public:
 		return queue_.empty();
 	}
 
-//private:
+private:
 	std::mutex mutex_;
 	std::condition_variable cond_;
 	std::queue<T> queue_;
