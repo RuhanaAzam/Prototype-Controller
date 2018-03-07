@@ -11,10 +11,10 @@ we manually control threads and avoid use of ASIO's asynchronous operations.
 
 
 Compilation for manager:
-> g++ -std=c++11 -pthread -I 'path to asio "include" directory' manager.cpp -o man
+> ./managerCompile
 
 Compilation for worker:
-> g++ -std=c++11 -pthread -I 'path to asio "include" directory' worker.cpp -o work
+> ./workerCompile
 
 
 

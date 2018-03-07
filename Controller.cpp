@@ -1,5 +1,5 @@
 #include "Controller.hpp"
-#include "matSerial.cpp"
+#include "matSerial.hpp"
 #include <iostream>
 #include <stdlib.h>
 #include <string>
@@ -45,7 +45,6 @@ void Controller::send_group(){
 		} else {
 
 			vector<Mat> frames;
-			//printf("%d\t", clips->empty());
 			frames = clips->front();
 			clips->pop();
 //			printf("#%d REMOVED : \n", index/30);
@@ -53,41 +52,43 @@ void Controller::send_group(){
 			//pthread_mutex_unlock(&lock); // LOCK END**********************
 			lock.unlock();
 			
-
 			for(int i = 0; i < (groupSize); i++) { // sending 30 frames one by one
-				//vector<unsigned char> buf = matWrite(frames[i]);
-				
-				std::vector<unsigned char> buf;
-				for (int i = 0; i < 100000; i++){
-					buf.push_back('C');
+				vector<unsigned char> buf = matWrite(frames[i]);
+				long actual_size = static_cast<long>(buf.size());
+				//converting vector contents to a char * array
+				char *temp = (char *)malloc(sizeof(char) * (buf.size() + 1));
+				if(temp == NULL){
+					std::cout << "Malloc failed in Controller::send_group() ~ temp" << std::endl;
+					return;
 				}
-				
-				int actual_size = static_cast<int>(buf.size());
-				printf("actual_size:   %d\n", actual_size);
-				//char * temp = (char*)malloc(sizeof(buf.size()+1));
-				char* temp = new char[actual_size+1];
-				for(int j = 0; j < actual_size; j++) {
-					temp[j] = buf[j];
-				}
+				memcpy(temp, buf.data(), buf.size());
 				temp[buf.size()] = '\0';
-				printf("alen:       %lu\n", strlen(temp));
-				//printf("len: %lu", strlen(temp));
-				
-				cu->outQueue.push(temp); // send to comUnit
 
+				//building MessageInfo to push to queue
+				MessageInfo * push_this = (MessageInfo*)malloc(sizeof(MessageInfo));
+				if(push_this == NULL){
+					std::cout << "Malloc failed in Controller::send_group ~ push_this" << std::endl;
+					return;
+				}
+				push_this -> msg_ = temp;
+				push_this -> size_ = actual_size;
+				cu->outQueue.push(push_this); // send to comUnit
 				// ADDED FOR VERIFICATION // REMOVE LATER
-				cv::Mat a = matRead(buf);
+			
+
+				/*cv::Mat a = matRead(buf);
 				std::vector<int> params;
 				params.push_back(cv::IMWRITE_JPEG_QUALITY);
 				params.push_back(90);
 				char buff [strlen("/home/nvidia/jisoo/Prototype-Controller/image_out/final.jpg") + 1];
 				sprintf(buff,"/home/nvidia/jisoo/Prototype-Controller/image_out/final%d.jpg", index);
 				index++;
-				cv::imwrite(buff, a, params);
+				cv::imwrite(buff, a, params);*/
 			}
 			
 			
 		}		
+		
 	}
 }
 
@@ -173,7 +174,7 @@ void Controller::receive(queue<string> msgs){
 	}
 }
 
-void  Controller::start(){
+void Controller::start(){
 		index = 0;
 		thread0Finish = 0;
 		pthread_t sendThread;
@@ -186,9 +187,12 @@ void  Controller::start(){
 		while(!thread0Finish) {
 			pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
 		} 
+		std::cout << "readThread finished" << std::endl;
 		pthread_create(&sendThread, NULL, Controller::send_group_thread_callback, this);
-		pthread_join(readThread, NULL); 
+		pthread_join(readThread, NULL);
+		std::cout << "readThread finished" << std::endl; 
 		pthread_join(sendThread, NULL);
+		std::cout << "sendThread finished" << std::endl;
 		//pthread_exit(NULL);
 }
 
@@ -217,18 +221,10 @@ void Controller::push_test() {
 		//pthread_mutex_lock(&lock); // LOCK START ************************
 		clips->push(frames); // add array to queue
 		//pthread_mutex_unlock(&lock); // LOCK END*************************
-		printf("#%lu ADDED\n", clips->size());
+//		printf("#%lu ADDED\n", clips->size());
 		lock.unlock();
 		
 	} 
 	thread0Finish = 1;
 }
 
-/*
-Controller::~Controller(){
-
-
-	delete cu;
-
-}
-*/
