@@ -1,11 +1,7 @@
 #ifndef COMM_UNIT_HPP
 #define COMM_UNIT_HPP
 
-#include <ctime>
 #include <iostream>
-#include <string>
-#include <thread>
-#include <ctime>
 #include "asio.hpp"
 #include "queue.hpp"
 
