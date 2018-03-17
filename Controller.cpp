@@ -56,13 +56,12 @@ void Controller::send_group(){
 				vector<unsigned char> buf = matWrite(frames[i]);
 				long actual_size = static_cast<long>(buf.size());
 				//converting vector contents to a char * array
-				char *temp = (char *)malloc(sizeof(char) * (buf.size() + 1));
+				char *temp = (char *)malloc(sizeof(char) * actual_size);
 				if(temp == NULL){
 					std::cout << "Malloc failed in Controller::send_group() ~ temp" << std::endl;
 					return;
 				}
-				memcpy(temp, buf.data(), buf.size());
-				temp[buf.size()] = '\0';
+				memcpy(temp, buf.data(), actual_size);
 
 				//building MessageInfo to push to queue
 				MessageInfo * push_this = (MessageInfo*)malloc(sizeof(MessageInfo));
@@ -91,7 +90,6 @@ void Controller::send_group(){
 		
 	}
 }
-
 
 void Controller::read_video(string filename){
 
