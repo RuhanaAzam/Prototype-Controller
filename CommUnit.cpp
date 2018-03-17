@@ -1,13 +1,9 @@
-#include <ctime>
 #include <iostream>
-#include <string>
-#include <mutex>
-#include <queue>
 #include <thread>
-#include <ctime>
 #include "asio.hpp"
 #include "queue.hpp"
 #include "CommUnit.hpp"
+#include "Decoder.hpp"
 
 //start transport funcs
 
@@ -78,7 +74,7 @@ void ClientUnit::send(){
 	char *msg_ = msgInfo_ -> msg_;
 	//build header
 	char header_[header_length];
-	buildHeader(msg_, header_, msgInfo_);
+	buildHeader(header_, msgInfo_);
 
 	//build full packet ~ header + message	
 	char send_this_[header_length + msgInfo_ -> size_ + 1];
@@ -95,19 +91,14 @@ void ClientUnit::send(){
 	
 //build packet to send to socket
 void ClientUnit::buildPacketToSend(char *msg_, char *send_this_, char *header_, MessageInfo* msgInfo_){
-	
-	//build body	
-	//char body_[msgInfo_ -> size_]; (redundant)
-	//std::memcpy(body_, msg_, msgInfo_ -> size_); (redundant)
-	
+
 	//concatenate body with header
 	std::memcpy(send_this_, header_, header_length);
 	std::memcpy(send_this_ + header_length, msg_, msgInfo_ -> size_);
-	send_this_[header_length + msgInfo_ -> size_] = '\0';
 }
 
 //build header for sending
-void ClientUnit::buildHeader(char *message_, char *header_, MessageInfo * msgInfo_){
+void ClientUnit::buildHeader(char *header_, MessageInfo * msgInfo_){
 	std::memcpy(header_, &msgInfo_ -> size_, sizeof(msgInfo_ -> size_));
 }
 	
@@ -126,25 +117,22 @@ void ServerUnit::accept(){
 	std::cout << "Making connection on port " << port_ << std::endl;
 	acceptor_.accept(socket_);
 	std::cout << "ServerUnit successfully connected to a ClientUnit" << std::endl;
+	Decoder* decoder = new Decoder();
 	for(;;){
 		//connection closed by connected client
-		if(read() == EXIT_FAILURE){
+		if(read(decoder) == EXIT_FAILURE){
 			break;
 		}
 		
 	}
 	std::cout << "Connection Closed... disconnecting from port "<< port_ << std::endl;
+	delete(decoder);
 	//close socket so we can search for new peer
 	socket_.close();
 }
 	
 //continuously read from socket_
-int ServerUnit::read(){
-	MessageInfo * msgInfo_ = (MessageInfo *)malloc(sizeof(MessageInfo));
-	if(msgInfo_ == NULL){
-		std::cout << "Malloc failed in ServerUnit::read ~ msgInfo_" << std::endl;
-		return EXIT_FAILURE;
-	}
+int ServerUnit::read(Decoder* decoder){
 	char *header_ = (char *)malloc(sizeof(char)*header_length);
 	if(header_ == NULL){
 		std::cout << "Malloc failed in ServerUnit::read ~ header_" << std::endl;
@@ -156,16 +144,17 @@ int ServerUnit::read(){
 		std::cout << "ERROR: EOF REACHED: from header" << std::endl;
 		return EXIT_FAILURE;
 	}
+	long msgsize;
 	//insert message size
-	std::memcpy(&msgInfo_ -> size_, header_, header_length);
+	std::memcpy(&msgsize, header_, header_length);
 	
 	//get body of message aka main part
-	char *body_ = (char*)malloc(sizeof(char)*(msgInfo_ -> size_ + 1));
+	char *body_ = (char*)malloc(sizeof(char)*msgsize);
 	if(body_  == NULL){
 		std::cout << "Malloc failed in ServerUnit::read ~ body_" << std::endl;
 		return EXIT_FAILURE;
 	}
-	getBody(msgInfo_, body_);
+	getBody(msgsize, body_);
 
 	//connection closed
 	if(ec == asio::error::eof){
@@ -175,8 +164,8 @@ int ServerUnit::read(){
 	
 	//push recieved message to queue
 	std::cout << "Received Message Size: " << sizeof(header_) + sizeof(body_) << std::endl;
-	msgInfo_ -> msg_ = body_;
-	inQueue.push(msgInfo_);
+	decoder->decode(msgsize, body_, i);
+	//inQueue.push(msgInfo_);
 	return EXIT_SUCCESS;
 }
 	
@@ -191,13 +180,12 @@ void ServerUnit::getHeader(char *header_){
 }
 	
 //retreve body (message) of packet from socket
-void ServerUnit::getBody(MessageInfo *msgInfo_, char *body_){
+void ServerUnit::getBody(long msgsize, char *body_){
 	
 	//read the message from socket
-	long bytes_read_ = asio::read(socket_, asio::buffer(body_, msgInfo_ -> size_));
-	body_[msgInfo_ -> size_] = '\0';
+	long bytes_read_ = asio::read(socket_, asio::buffer(body_, msgsize));
 	//check if we read wrong about of bytes from the socket
-	if(bytes_read_ != msgInfo_ -> size_){
+	if(bytes_read_ != msgsize){
 		std::cout << "ERROR: incorrect number of bytes read while reading body" << std::endl;
 	}
 }

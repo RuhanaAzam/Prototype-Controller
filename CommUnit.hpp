@@ -4,6 +4,7 @@
 #include <iostream>
 #include "asio.hpp"
 #include "queue.hpp"
+#include "Decoder.hpp"
 
 
 struct ConnectionInfo{
@@ -80,7 +81,7 @@ public:
 	void buildPacketToSend(char *message_, char *send_this_, char *header_, MessageInfo* msgInfo_);
 
 	//build header for sending
-	void buildHeader(char *message_, char *header_, MessageInfo* msgInfo_);
+	void buildHeader(char *header_, MessageInfo* msgInfo_);
 	
 	//variables
 	tcp::resolver resolver_;
@@ -113,13 +114,13 @@ public:
 	void accept();
 	
 	//continuously read from socket_
-	int read();
+	int read(Decoder* decoder);
 	
 	//retrieve header of packet from socket
 	void getHeader(char *header_);
 	
 	//retreve body (message) of packet from socket
-	void getBody(MessageInfo * msgInfo_, char *body_);
+	void getBody(long msgsize, char *body_);
 
 	//variables
 	short port_;
