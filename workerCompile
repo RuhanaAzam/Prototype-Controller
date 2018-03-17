@@ -1,1 +1,2 @@
-g++ -g -std=c++11 -I ../asio/asio/include/ -pthread workermain.cpp Controller.cpp CommUnit.cpp matSerial.cpp -o worker -lopencv_core -lopencv_highgui -lopencv_video 
+g++ -std=c++11 -pthread -I ~/asio-1.10.8/include workerMain.cpp CommUnit.cpp matSerial.cpp Decoder.cpp -g -o manager -lopencv_core -lopencv_highgui -lopencv_video
+
