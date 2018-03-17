@@ -14,12 +14,12 @@ int main()
 	try
 	{
 		//local ports for each ServerUnit to use
-		char local1_[5] = {'9','9','9','2','\0'};
+		char local1_[5] = {'1','1','1','1','\0'};
 		//static char local2_[5] = {'9','9','9','3','\0'};
 		//static char local3_[5] = {'9','9','9','4','\0'};
 	
 		//host ports for each ClientUnit to connect to
-		char worker1_[5] = {'3','1','1','2','\0'};
+		char worker1_[5] = {'2','2','2','2','\0'};
 		//static char worker2_[5] = {'4','1','1','2','\0'};
 		//static char worker3_[5] = {'5','1','1','2','\0'};
 	
