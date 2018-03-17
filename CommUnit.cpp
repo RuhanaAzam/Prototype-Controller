@@ -118,9 +118,9 @@ void ServerUnit::accept(){
 	acceptor_.accept(socket_);
 	std::cout << "ServerUnit successfully connected to a ClientUnit" << std::endl;
 	Decoder* decoder = new Decoder();
-	for(;;){
+	for(int i = 0;;i++){
 		//connection closed by connected client
-		if(read(decoder) == EXIT_FAILURE){
+		if(read(i, decoder) == EXIT_FAILURE){
 			break;
 		}
 		
@@ -132,7 +132,7 @@ void ServerUnit::accept(){
 }
 	
 //continuously read from socket_
-int ServerUnit::read(Decoder* decoder){
+int ServerUnit::read(int index, Decoder* decoder){
 	char *header_ = (char *)malloc(sizeof(char)*header_length);
 	if(header_ == NULL){
 		std::cout << "Malloc failed in ServerUnit::read ~ header_" << std::endl;
@@ -164,7 +164,7 @@ int ServerUnit::read(Decoder* decoder){
 	
 	//push recieved message to queue
 	std::cout << "Received Message Size: " << sizeof(header_) + sizeof(body_) << std::endl;
-	decoder->decode(msgsize, body_, i);
+	decoder->decode(msgsize, body_, index);
 	//inQueue.push(msgInfo_);
 	return EXIT_SUCCESS;
 }

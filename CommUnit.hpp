@@ -114,7 +114,7 @@ public:
 	void accept();
 	
 	//continuously read from socket_
-	int read(Decoder* decoder);
+	int read(int index, Decoder* decoder);
 	
 	//retrieve header of packet from socket
 	void getHeader(char *header_);
