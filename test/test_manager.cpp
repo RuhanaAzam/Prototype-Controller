@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     string videoName = "1.mp4";
     int groupSize = 30;
     queue<vector<Mat>>* clips = new queue<vector<Mat>>();
-    Controller* controller = new Controller(3, clips, 10, cu);
+    Controller* controller = new Controller(3, clips, 300, cu);
     thread t1(&StartTransport::start, cu);
     thread t2(&Controller::start, controller);
 /*    char line[18];
